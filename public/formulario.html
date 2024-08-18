@@ -32,19 +32,16 @@
             margin: 0 auto 20px;
             max-width: 100px;
         }
-
         /* Ajustar el ancho de los campos seleccionados al 40% */
         .small-input {
             width: 40%;
         }
-
         /* Estilo para la línea de Fecha, Hora y Temperatura */
         .date-time-temp {
             text-align: center;
             margin-top: 20px;
             font-size: 1rem;
         }
-
         /* Ventana flotante ajustada */
         .floating-window {
             position: fixed;
@@ -56,7 +53,6 @@
             border: 1px solid #ddd;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-
         /* Reducir el ancho del campo de observaciones en un 50% */
         #observaciones {
             width: 50%;
@@ -97,31 +93,31 @@
                 </select>
             </div>
             <div class="form-group">
-                <label for="total">Muestra Total:</label>
+                <label id="totalLabel" for="total">Muestra Total (unds):</label>
                 <input type="number" class="form-control small-input" id="total" name="total" required>
             </div>
             <div class="form-group">
-                <label for="rotos">Rotos:</label>
+                <label id="rotosLabel" for="rotos">Rotos (unds):</label>
                 <input type="number" class="form-control small-input" id="rotos" name="rotos" required oninput="calculatePercentage()">
             </div>
             <div class="form-group">
-                <label for="trizados">Trizados:</label>
+                <label id="trizadosLabel" for="trizados">Trizados (unds):</label>
                 <input type="number" class="form-control small-input" id="trizados" name="trizados" required oninput="calculatePercentage()">
             </div>
             <div class="form-group">
-                <label for="cholgas">Cholgas:</label>
+                <label id="cholgasLabel" for="cholgas">Cholgas (unds):</label>
                 <input type="number" class="form-control small-input" id="cholgas" name="cholgas" required oninput="calculatePercentage()">
             </div>
             <div class="form-group">
-                <label for="malton">Malton:</label>
+                <label id="maltonLabel" for="malton">Malton (unds):</label>
                 <input type="number" class="form-control small-input" id="malton" name="malton" required oninput="calculatePercentage()">
             </div>
             <div class="form-group">
-                <label for="picorocos">Picorocos:</label>
+                <label id="picorocosLabel" for="picorocos">Picorocos (unds):</label>
                 <input type="number" class="form-control small-input" id="picorocos" name="picorocos" required oninput="calculatePercentage()">
             </div>
             <div class="form-group">
-                <label for="otros">Otros:</label>
+                <label id="otrosLabel" for="otros">Otros (unds):</label>
                 <input type="number" class="form-control small-input" id="otros" name="otros" required oninput="calculatePercentage()">
             </div>
             <div class="form-group">
@@ -183,7 +179,7 @@
             const sampleData = Object.fromEntries(formData.entries());
             localStorage.setItem('lastSample', JSON.stringify(sampleData));
 
-            alert('Datos guardados exitosamente. Puedes ver el resumen en otra página.');
+            alert('Datos guardados exitosamente.');
             clearForm();
         });
 
@@ -238,36 +234,23 @@
             }
         }
 
+        // Cambiar etiquetas de unidades
+        function updateUnits() {
+            const tipoMuestreo = document.getElementById('tipoMuestreo').value;
+            const unidad = tipoMuestreo === 'peso' ? 'grs' : 'unds';
+            document.getElementById('totalLabel').textContent = `Muestra Total (${unidad}):`;
+            document.getElementById('rotosLabel').textContent = `Rotos (${unidad}):`;
+            document.getElementById('trizadosLabel').textContent = `Trizados (${unidad}):`;
+            document.getElementById('cholgasLabel').textContent = `Cholgas (${unidad}):`;
+            document.getElementById('maltonLabel').textContent = `Malton (${unidad}):`;
+            document.getElementById('picorocosLabel').textContent = `Picorocos (${unidad}):`;
+            document.getElementById('otrosLabel').textContent = `Otros (${unidad}):`;
+        }
+
         window.onload = function() {
             updateDateTimeAndTemperature();
+            updateUnits();
         };
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
