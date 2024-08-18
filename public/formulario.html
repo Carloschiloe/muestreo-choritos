@@ -38,7 +38,7 @@
         }
         .floating-window {
             position: fixed;
-            top: 180px; /* Ajustado para que esté a nivel del campo "Nombre Centro de Cultivo" */
+            top: 260px; /* Bajada nuevamente */
             right: 5px;
             width: 180px;
             padding: 10px;
@@ -51,6 +51,19 @@
             display: block;
             margin: 0 auto 20px;
             max-width: 100px;
+        }
+
+        /* Optimización para pantallas pequeñas y múltiples navegadores */
+        @media (max-width: 600px) {
+            .floating-window {
+                width: 160px;
+                top: 300px; /* Ajuste adicional para pantallas pequeñas */
+            }
+        }
+
+        /* Evitar problemas de zoom en dispositivos móviles */
+        input, textarea, select, button {
+            font-size: 1rem; /* Asegurar que el zoom no cause problemas */
         }
     </style>
 </head>
