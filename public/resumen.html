@@ -114,14 +114,11 @@
     </div>
 
     <script>
-        // Recuperar los datos de muestreo guardados
         let storedSamples = JSON.parse(localStorage.getItem('storedSamples')) || [];
-
         const tbody = document.getElementById('summaryTableBody');
 
-        // Mostrar los datos almacenados y agregar funcionalidad de editar/eliminar
         function displaySamples() {
-            tbody.innerHTML = ''; // Limpiar tabla antes de mostrar
+            tbody.innerHTML = '';
             storedSamples.slice().reverse().forEach((sample, index) => {
                 const row = document.createElement('tr');
                 const total = parseFloat(sample.total) || 0;
@@ -133,11 +130,9 @@
                 const otros = parseFloat(sample.otros) || 0;
                 const choritos = total - (rotos + trizados + cholgas + malton + picorocos + otros);
 
-                // Crear miniatura para la foto y enlace a la versión original
-                const fotoUrl = sample.foto || "";
+                const fotoUrl = typeof sample.foto === 'string' ? sample.foto : "";
                 const fotoHtml = fotoUrl ? `<a href="${fotoUrl}" target="_blank"><img src="${fotoUrl}" class="thumbnail" alt="Foto"></a>` : "No disponible";
 
-                // Agregar los datos a la tabla
                 row.innerHTML = `
                     <td>${sample.fecha}</td>
                     <td>${sample.hora}</td>
@@ -156,34 +151,29 @@
                     <td>${sample.responsable}</td>
                     <td>${fotoHtml}</td>
                     <td>
-                        <span class="edit-btn" onclick="loadSampleToForm(${storedSamples.length - 1 - index})">Editar</span> |
-                        <span class="delete-btn" onclick="deleteRow(${storedSamples.length - 1 - index})">Eliminar</span>
+                        <span class="edit-btn" onclick="loadSampleToForm(${storedSamples.length - 1 - index})">✏️</span> |
+                        <span class="delete-btn" onclick="deleteRow(${storedSamples.length - 1 - index})">❌</span>
                     </td>
                 `;
                 tbody.appendChild(row);
             });
         }
 
-        // Cargar los datos al formulario para editar
         function loadSampleToForm(index) {
             const sample = storedSamples[index];
-
-            // Cargar los datos en el formulario
             localStorage.setItem('editIndex', index);
             localStorage.setItem('editingSample', JSON.stringify(sample));
-            window.location.href = 'formulario.html'; // Redirigir al formulario para edición
+            window.location.href = 'formulario.html';
         }
 
-        // Eliminar fila
         function deleteRow(index) {
             if (confirm('¿Estás seguro de que deseas eliminar este registro?')) {
                 storedSamples.splice(index, 1);
                 localStorage.setItem('storedSamples', JSON.stringify(storedSamples));
-                displaySamples(); // Volver a mostrar las filas actualizadas
+                displaySamples();
             }
         }
 
-        // Inicializar tabla con los datos almacenados
         displaySamples();
     </script>
 </body>
