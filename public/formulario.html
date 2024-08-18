@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <title>Muestreo de Choritos</title>
@@ -10,13 +11,16 @@
             font-family: Arial, sans-serif;
             margin: 20px;
         }
+
         .container {
             max-width: 600px;
             margin: auto;
         }
+
         .form-group {
             margin-bottom: 15px;
         }
+
         button {
             padding: 10px 20px;
             background-color: #4CAF50;
@@ -24,53 +28,60 @@
             border: none;
             cursor: pointer;
         }
+
         button:hover {
             background-color: #45a049;
         }
+
         .logo {
             display: block;
             margin: 0 auto 20px;
             max-width: 100px;
         }
+
         /* Ajustar el ancho de los campos seleccionados al 40% */
         .small-input {
             width: 40%;
         }
+
         /* Estilo para la línea de Fecha, Hora y Temperatura */
         .date-time-temp {
             text-align: center;
             margin-top: 20px;
             font-size: 1rem;
         }
+
         /* Ventana flotante ajustada */
         .floating-window {
             position: fixed;
-            top: 300px; /* Ajustada al 30% hacia arriba */
+            top: 300px;
             right: 20px;
-            width: 144px; /* Reducción del 20% */
+            width: 144px;
             padding: 10px;
             background-color: #f8f9fa;
             border: 1px solid #ddd;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+
         /* Reducir el ancho del campo de observaciones en un 50% */
         #observaciones {
             width: 50%;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <img src="Imagenes/camanchaca.png" alt="Logo de la Empresa" class="logo">
         <h1 class="text-center">Registro de Muestreo de Choritos</h1>
-        
+
         <!-- Mostrar fecha, hora y temperatura en una sola línea -->
         <div class="date-time-temp">
             Fecha: <span id="fecha"></span> |
             Hora: <span id="hora"></span> |
             Temperatura: <span id="temperatura">N/A</span> °C
         </div>
-        
+
         <button type="button" class="btn btn-primary" onclick="copyLastSample()">Copiar Último Muestreo</button>
         <form id="muestreoForm" enctype="multipart/form-data">
             <div class="form-group">
@@ -159,8 +170,11 @@
     </div>
 
     <script>
+        let editIndex = null;
+
         function clearForm() {
             document.getElementById('muestreoForm').reset();
+            localStorage.removeItem('editIndex');
         }
 
         function copyLastSample() {
@@ -180,11 +194,52 @@
             event.preventDefault();
             const formData = new FormData(this);
             const sampleData = Object.fromEntries(formData.entries());
-            localStorage.setItem('lastSample', JSON.stringify(sampleData));
 
-            alert('Datos guardados exitosamente.');
+            if (editIndex !== null) {
+                // Actualizar muestra existente
+                let storedSamples = JSON.parse(localStorage.getItem('storedSamples')) || [];
+                storedSamples[editIndex] = sampleData;
+                localStorage.setItem('storedSamples', JSON.stringify(storedSamples));
+                alert('Datos actualizados exitosamente.');
+                editIndex = null; // Restablecer la edición
+            } else {
+                // Guardar nueva muestra
+                localStorage.setItem('lastSample', JSON.stringify(sampleData));
+                let storedSamples = JSON.parse(localStorage.getItem('storedSamples')) || [];
+                storedSamples.push(sampleData);
+                localStorage.setItem('storedSamples', JSON.stringify(storedSamples));
+                alert('Datos guardados exitosamente.');
+            }
+
             clearForm();
         });
+
+        // Cargar datos al formulario si se está editando
+        window.onload = function() {
+            updateDateTimeAndTemperature();
+            updateUnits();
+
+            const editIndexFromStorage = localStorage.getItem('editIndex');
+            if (editIndexFromStorage !== null) {
+                const storedSamples = JSON.parse(localStorage.getItem('storedSamples')) || [];
+                const sample = storedSamples[editIndexFromStorage];
+                if (sample) {
+                    document.getElementById('centro').value = sample.centro;
+                    document.getElementById('linea').value = sample.linea;
+                    document.getElementById('plataforma').value = sample.plataforma;
+                    document.getElementById('total').value = sample.total;
+                    document.getElementById('rotos').value = sample.rotos;
+                    document.getElementById('trizados').value = sample.trizados;
+                    document.getElementById('cholgas').value = sample.cholgas;
+                    document.getElementById('malton').value = sample.malton;
+                    document.getElementById('picorocos').value = sample.picorocos;
+                    document.getElementById('otros').value = sample.otros;
+                    document.getElementById('observaciones').value = sample.observaciones;
+                    editIndex = editIndexFromStorage;
+                    localStorage.removeItem('editIndex');
+                }
+            }
+        };
 
         function calculatePercentage() {
             const total = parseFloat(document.getElementById('total').value) || 0;
@@ -217,7 +272,7 @@
             document.getElementById('fecha').textContent = fecha;
             document.getElementById('hora').textContent = hora;
 
-            const apiKey = 'e8d54296932b2069dfee21442c327dcb'; 
+            const apiKey = 'e8d54296932b2069dfee21442c327dcb';
             const ciudad = 'Castro,CL';
             const url = `https://api.openweathermap.org/data/2.5/weather?q=${ciudad}&units=metric&appid=${apiKey}`;
 
@@ -249,11 +304,8 @@
             document.getElementById('picorocosLabel').textContent = `Picorocos (${unidad}):`;
             document.getElementById('otrosLabel').textContent = `Otros (${unidad}):`;
         }
-
-        window.onload = function() {
-            updateDateTimeAndTemperature();
-            updateUnits();
-        };
     </script>
 </body>
+
 </html>
+

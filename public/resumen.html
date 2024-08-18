@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <title>Resumen de Resultados</title>
@@ -10,50 +11,69 @@
             margin: 20px;
             padding: 0;
         }
+
         .container {
             max-width: 100%;
             margin: auto;
             padding: 0;
         }
+
         .summary-table {
             width: 100%;
             table-layout: fixed;
             word-wrap: break-word;
             margin-top: 20px;
         }
-        .summary-table th, .summary-table td {
+
+        .summary-table th,
+        .summary-table td {
             text-align: center;
             vertical-align: middle;
             padding: 10px;
             font-size: 14px;
         }
+
         .summary-table th {
             position: sticky;
             top: 0;
             background-color: #f8f9fa;
             z-index: 2;
         }
+
         .thumbnail {
             width: 40px;
             height: 40px;
             object-fit: cover;
         }
+
+        .edit-btn,
+        .delete-btn {
+            cursor: pointer;
+            color: blue;
+            text-decoration: underline;
+        }
+
         /* Estilos responsivos */
         @media (max-width: 768px) {
-            .summary-table th, .summary-table td {
+            .summary-table th,
+            .summary-table td {
                 font-size: 12px;
                 padding: 5px;
             }
+
             .thumbnail {
                 width: 30px;
                 height: 30px;
             }
         }
+
         @media (max-width: 576px) {
-            .summary-table th, .summary-table td {
+            .summary-table th,
+            .summary-table td {
                 font-size: 10px;
                 padding: 4px;
             }
+
             .thumbnail {
                 width: 25px;
                 height: 25px;
@@ -61,6 +81,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1 class="text-center">Resumen de Resultados</h1>
@@ -80,8 +101,10 @@
                     <th>Picorocos (%)</th>
                     <th>Otros (%)</th>
                     <th>Choritos (%)</th>
+                    <th>Observaciones</th>
                     <th>Responsable</th>
                     <th>Foto</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody id="summaryTableBody">
@@ -94,94 +117,34 @@
         // Recuperar los datos de muestreo guardados
         let storedSamples = JSON.parse(localStorage.getItem('storedSamples')) || [];
 
-        // Eliminar duplicados basados en las claves únicas
-        storedSamples = storedSamples.filter((sample, index, self) =>
-            index === self.findIndex((t) => (
-                t.fecha === sample.fecha && 
-                t.hora === sample.hora &&
-                t.centro === sample.centro &&
-                t.linea === sample.linea &&
-                t.plataforma === sample.plataforma
-            ))
-        );
-
-        localStorage.setItem('storedSamples', JSON.stringify(storedSamples));
-
         const tbody = document.getElementById('summaryTableBody');
 
-        // Mostrar los datos almacenados
-        storedSamples.forEach(sample => {
-            const row = document.createElement('tr');
-            const total = parseFloat(sample.total) || 0;
-            const rotos = parseFloat(sample.rotos) || 0;
-            const trizados = parseFloat(sample.trizados) || 0;
-            const cholgas = parseFloat(sample.cholgas) || 0;
-            const malton = parseFloat(sample.malton) || 0;
-            const picorocos = parseFloat(sample.picorocos) || 0;
-            const otros = parseFloat(sample.otros) || 0;
-            const choritos = total - (rotos + trizados + cholgas + malton + picorocos + otros);
-
-            // Crear miniatura para la foto y enlace a la versión original
-            const fotoUrl = sample.foto || "";
-            const fotoHtml = fotoUrl ? `<a href="${fotoUrl}" target="_blank"><img src="${fotoUrl}" class="thumbnail" alt="Foto"></a>` : "No disponible";
-
-            // Agregar los datos a la tabla
-            row.innerHTML = `
-                <td>${sample.fecha}</td>
-                <td>${sample.hora}</td>
-                <td>${sample.temperatura}</td>
-                <td>${sample.centro}</td>
-                <td>${sample.linea}</td>
-                <td>${sample.plataforma}</td>
-                <td>${(rotos / total * 100).toFixed(2)}</td>
-                <td>${(trizados / total * 100).toFixed(2)}</td>
-                <td>${(cholgas / total * 100).toFixed(2)}</td>
-                <td>${(malton / total * 100).toFixed(2)}</td>
-                <td>${(picorocos / total * 100).toFixed(2)}</td>
-                <td>${(otros / total * 100).toFixed(2)}</td>
-                <td>${(choritos / total * 100).toFixed(2)}</td>
-                <td>${sample.responsable}</td>
-                <td>${fotoHtml}</td>
-            `;
-            tbody.appendChild(row);
-        });
-
-        // Guardar el nuevo muestreo al almacenamiento
-        const lastSample = JSON.parse(localStorage.getItem('lastSample'));
-        if (lastSample) {
-            const isDuplicate = storedSamples.some(sample =>
-                sample.fecha === lastSample.fecha &&
-                sample.hora === lastSample.hora &&
-                sample.centro === lastSample.centro &&
-                sample.linea === lastSample.linea &&
-                sample.plataforma === lastSample.plataforma
-            );
-
-            // Sólo agregar si no es un duplicado
-            if (!isDuplicate) {
-                storedSamples.push(lastSample);
-                localStorage.setItem('storedSamples', JSON.stringify(storedSamples));
-
+        // Mostrar los datos almacenados y agregar funcionalidad de editar/eliminar
+        function displaySamples() {
+            tbody.innerHTML = ''; // Limpiar tabla antes de mostrar
+            storedSamples.slice().reverse().forEach((sample, index) => {
                 const row = document.createElement('tr');
-                const total = parseFloat(lastSample.total) || 0;
-                const rotos = parseFloat(lastSample.rotos) || 0;
-                const trizados = parseFloat(lastSample.trizados) || 0;
-                const cholgas = parseFloat(lastSample.cholgas) || 0;
-                const malton = parseFloat(lastSample.malton) || 0;
-                const picorocos = parseFloat(lastSample.picorocos) || 0;
-                const otros = parseFloat(lastSample.otros) || 0;
+                const total = parseFloat(sample.total) || 0;
+                const rotos = parseFloat(sample.rotos) || 0;
+                const trizados = parseFloat(sample.trizados) || 0;
+                const cholgas = parseFloat(sample.cholgas) || 0;
+                const malton = parseFloat(sample.malton) || 0;
+                const picorocos = parseFloat(sample.picorocos) || 0;
+                const otros = parseFloat(sample.otros) || 0;
                 const choritos = total - (rotos + trizados + cholgas + malton + picorocos + otros);
 
-                const fotoUrl = lastSample.foto || "";
+                // Crear miniatura para la foto y enlace a la versión original
+                const fotoUrl = sample.foto || "";
                 const fotoHtml = fotoUrl ? `<a href="${fotoUrl}" target="_blank"><img src="${fotoUrl}" class="thumbnail" alt="Foto"></a>` : "No disponible";
 
+                // Agregar los datos a la tabla
                 row.innerHTML = `
-                    <td>${lastSample.fecha}</td>
-                    <td>${lastSample.hora}</td>
-                    <td>${lastSample.temperatura}</td>
-                    <td>${lastSample.centro}</td>
-                    <td>${lastSample.linea}</td>
-                    <td>${lastSample.plataforma}</td>
+                    <td>${sample.fecha}</td>
+                    <td>${sample.hora}</td>
+                    <td>${sample.temperatura}</td>
+                    <td>${sample.centro}</td>
+                    <td>${sample.linea}</td>
+                    <td>${sample.plataforma}</td>
                     <td>${(rotos / total * 100).toFixed(2)}</td>
                     <td>${(trizados / total * 100).toFixed(2)}</td>
                     <td>${(cholgas / total * 100).toFixed(2)}</td>
@@ -189,15 +152,44 @@
                     <td>${(picorocos / total * 100).toFixed(2)}</td>
                     <td>${(otros / total * 100).toFixed(2)}</td>
                     <td>${(choritos / total * 100).toFixed(2)}</td>
-                    <td>${lastSample.responsable}</td>
+                    <td>${sample.observaciones || ""}</td>
+                    <td>${sample.responsable}</td>
                     <td>${fotoHtml}</td>
+                    <td>
+                        <span class="edit-btn" onclick="loadSampleToForm(${storedSamples.length - 1 - index})">Editar</span> |
+                        <span class="delete-btn" onclick="deleteRow(${storedSamples.length - 1 - index})">Eliminar</span>
+                    </td>
                 `;
                 tbody.appendChild(row);
+            });
+        }
+
+        // Cargar los datos al formulario para editar
+        function loadSampleToForm(index) {
+            const sample = storedSamples[index];
+
+            // Cargar los datos en el formulario
+            localStorage.setItem('editIndex', index);
+            localStorage.setItem('editingSample', JSON.stringify(sample));
+            window.location.href = 'formulario.html'; // Redirigir al formulario para edición
+        }
+
+        // Eliminar fila
+        function deleteRow(index) {
+            if (confirm('¿Estás seguro de que deseas eliminar este registro?')) {
+                storedSamples.splice(index, 1);
+                localStorage.setItem('storedSamples', JSON.stringify(storedSamples));
+                displaySamples(); // Volver a mostrar las filas actualizadas
             }
         }
+
+        // Inicializar tabla con los datos almacenados
+        displaySamples();
     </script>
 </body>
+
 </html>
+
 
 
 
