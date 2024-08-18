@@ -38,7 +38,7 @@
         }
         .floating-window {
             position: fixed;
-            top: 260px; /* Bajada nuevamente */
+            top: 260px;
             right: 5px;
             width: 180px;
             padding: 10px;
@@ -53,17 +53,22 @@
             max-width: 100px;
         }
 
+        /* Ajustar el ancho de los campos seleccionados al 40% */
+        .small-input {
+            width: 40%;
+        }
+
         /* Optimización para pantallas pequeñas y múltiples navegadores */
         @media (max-width: 600px) {
             .floating-window {
                 width: 160px;
-                top: 300px; /* Ajuste adicional para pantallas pequeñas */
+                top: 300px;
             }
         }
 
         /* Evitar problemas de zoom en dispositivos móviles */
         input, textarea, select, button {
-            font-size: 1rem; /* Asegurar que el zoom no cause problemas */
+            font-size: 1rem;
         }
     </style>
 </head>
@@ -86,7 +91,7 @@
             </div>
             <div class="form-group">
                 <label for="linea">N° de Línea:</label>
-                <input type="number" class="form-control" id="linea" name="linea" required>
+                <input type="number" class="form-control small-input" id="linea" name="linea" required>
             </div>
             <div class="form-group">
                 <label for="plataforma">Nombre Plataforma:</label>
@@ -94,38 +99,38 @@
             </div>
             <div class="form-group">
                 <label for="tipoMuestreo">Tipo de Muestreo:</label>
-                <select class="form-control" id="tipoMuestreo" name="tipoMuestreo" required onchange="updateUnits()">
+                <select class="form-control small-input" id="tipoMuestreo" name="tipoMuestreo" required onchange="updateUnits()">
                     <option value="unidades">Unidades</option>
                     <option value="peso">Peso</option>
                 </select>
             </div>
             <div class="form-group">
                 <label for="total">Muestra Total:</label>
-                <input type="number" class="form-control" id="total" name="total" required>
+                <input type="number" class="form-control small-input" id="total" name="total" required>
             </div>
             <div class="form-group">
                 <label for="rotos">Rotos:</label>
-                <input type="number" class="form-control" id="rotos" name="rotos" required oninput="calculatePercentage()">
+                <input type="number" class="form-control small-input" id="rotos" name="rotos" required oninput="calculatePercentage()">
             </div>
             <div class="form-group">
                 <label for="trizados">Trizados:</label>
-                <input type="number" class="form-control" id="trizados" name="trizados" required oninput="calculatePercentage()">
+                <input type="number" class="form-control small-input" id="trizados" name="trizados" required oninput="calculatePercentage()">
             </div>
             <div class="form-group">
                 <label for="cholgas">Cholgas:</label>
-                <input type="number" class="form-control" id="cholgas" name="cholgas" required oninput="calculatePercentage()">
+                <input type="number" class="form-control small-input" id="cholgas" name="cholgas" required oninput="calculatePercentage()">
             </div>
             <div class="form-group">
                 <label for="malton">Malton:</label>
-                <input type="number" class="form-control" id="malton" name="malton" required oninput="calculatePercentage()">
+                <input type="number" class="form-control small-input" id="malton" name="malton" required oninput="calculatePercentage()">
             </div>
             <div class="form-group">
                 <label for="picorocos">Picorocos:</label>
-                <input type="number" class="form-control" id="picorocos" name="picorocos" required oninput="calculatePercentage()">
+                <input type="number" class="form-control small-input" id="picorocos" name="picorocos" required oninput="calculatePercentage()">
             </div>
             <div class="form-group">
                 <label for="otros">Otros:</label>
-                <input type="number" class="form-control" id="otros" name="otros" required oninput="calculatePercentage()">
+                <input type="number" class="form-control small-input" id="otros" name="otros" required oninput="calculatePercentage()">
             </div>
             <div class="form-group">
                 <label for="observaciones">Observaciones:</label>
@@ -137,7 +142,7 @@
             </div>
             <div class="form-group">
                 <label for="foto">Tomar Foto:</label>
-                <input type="file" class="form-control" id="foto" name="foto" accept="image/*" capture="environment">
+                <input type="file" class="form-control small-input" id="foto" name="foto" accept="image/*" capture="environment">
             </div>
             <!-- Campos ocultos para registrar la fecha, hora y temperatura -->
             <input type="hidden" id="hiddenFecha" name="fecha">
@@ -277,6 +282,7 @@
     </script>
 </body>
 </html>
+
 
 
 
