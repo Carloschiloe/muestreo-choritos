@@ -45,12 +45,12 @@
             font-size: 1rem;
         }
 
-        /* Ventana flotante restaurada */
+        /* Ventana flotante ajustada */
         .floating-window {
             position: fixed;
-            top: 150px; /* Restaurada pero ajustada para que no tape el logo ni el título */
+            top: 300px; /* Ajustada al 30% hacia arriba */
             right: 20px;
-            width: 200px; /* Ajustada para ser más angosta */
+            width: 200px; /* Manteniendo el ancho ajustado */
             padding: 10px;
             background-color: #f8f9fa;
             border: 1px solid #ddd;
@@ -142,7 +142,7 @@
         <a href="resumen.html" class="btn btn-info mt-4">Ver Resumen de Resultados</a>
     </div>
 
-    <!-- Ventana flotante restaurada -->
+    <!-- Ventana flotante -->
     <div class="floating-window">
         <h4>Resultados en Tiempo Real</h4>
         <p>Rotos: <span id="resultadoRotos">0</span>%</p>
@@ -223,7 +223,6 @@
                 const temperatura = data.main.temp;
 
                 document.getElementById('temperatura').textContent = temperatura;
-
                 document.getElementById('hiddenFecha').value = fecha;
                 document.getElementById('hiddenHora').value = hora;
                 document.getElementById('hiddenTemperatura').value = temperatura;
@@ -240,6 +239,8 @@
     </script>
 </body>
 </html>
+
+
 
 
 
