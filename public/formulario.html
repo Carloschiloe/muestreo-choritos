@@ -50,11 +50,16 @@
             position: fixed;
             top: 300px; /* Ajustada al 30% hacia arriba */
             right: 20px;
-            width: 200px; /* Manteniendo el ancho ajustado */
+            width: 144px; /* Reducción del 20% */
             padding: 10px;
             background-color: #f8f9fa;
             border: 1px solid #ddd;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Reducir el ancho del campo de observaciones en un 50% */
+        #observaciones {
+            width: 50%;
         }
     </style>
 </head>
@@ -144,7 +149,7 @@
 
     <!-- Ventana flotante -->
     <div class="floating-window">
-        <h4>Resultados en Tiempo Real</h4>
+        <h4>% Tiempo Real</h4>
         <p>Rotos: <span id="resultadoRotos">0</span>%</p>
         <p>Trizados: <span id="resultadoTrizados">0</span>%</p>
         <p>Cholgas: <span id="resultadoCholgas">0</span>%</p>
