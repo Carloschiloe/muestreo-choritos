@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Resumen de Resultados</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+        }
+        .container {
+            max-width: 100%;
+            margin: auto;
+            padding: 0;
+        }
+        .summary-table {
+            width: 100%;
+            table-layout: fixed;
+            word-wrap: break-word;
+        }
+        .summary-table th, .summary-table td {
+            text-align: center;
+            vertical-align: middle;
+            padding: 10px;
+            font-size: 14px;
+        }
+        .thumbnail {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+        }
+        /* Estilos responsivos */
+        @media (max-width: 768px) {
+            .summary-table th, .summary-table td {
+                font-size: 12px;
+                padding: 5px;
+            }
+            .thumbnail {
+                width: 30px;
+                height: 30px;
+            }
+        }
+        @media (max-width: 576px) {
+            .summary-table th, .summary-table td {
+                font-size: 10px;
+                padding: 4px;
+            }
+            .thumbnail {
+                width: 25px;
+                height: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Resumen de Resultados</h1>
+        <table class="table table-bordered summary-table">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Temp (°C)</th>
+                    <th>Centro Cultivo</th>
+                    <th>N° Línea</th>
+                    <th>Plataforma</th>
+                    <th>Rotos (%)</th>
+                    <th>Trizados (%)</th>
+                    <th>Cholgas (%)</th>
+                    <th>Malton (%)</th>
+                    <th>Picorocos (%)</th>
+                    <th>Otros (%)</th>
+                    <th>Choritos (%)</th>
+                    <th>Responsable</th>
+                    <th>Foto</th>
+                </tr>
+            </thead>
+            <tbody id="summaryTableBody">
+                <!-- Filas agregadas dinámicamente -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Recuperar los datos del LocalStorage
+        const lastSample = JSON.parse(localStorage.getItem('lastSample'));
+
+        if (lastSample) {
+            const tbody = document.getElementById('summaryTableBody');
+            const row = document.createElement('tr');
+            const total = parseFloat(lastSample.total) || 0;
+
+            const rotos = parseFloat(lastSample.rotos) || 0;
+            const trizados = parseFloat(lastSample.trizados) || 0;
+            const cholgas = parseFloat(lastSample.cholgas) || 0;
+            const malton = parseFloat(lastSample.malton) || 0;
+            const picorocos = parseFloat(lastSample.picorocos) || 0;
+            const otros = parseFloat(lastSample.otros) || 0;
+            const choritos = total - (rotos + trizados + cholgas + malton + picorocos + otros);
+
+            // Crear miniatura para la foto y enlace a la versión original
+            const fotoUrl = lastSample.foto || ""; // URL de la foto subida
+            const fotoHtml = fotoUrl ? `<a href="${fotoUrl}" target="_blank"><img src="${fotoUrl}" class="thumbnail" alt="Foto"></a>` : "No disponible";
+
+            // Agregar los datos a la tabla
+            row.innerHTML = `
+                <td>${lastSample.fecha}</td>
+                <td>${lastSample.hora}</td>
+                <td>${lastSample.temperatura}</td>
+                <td>${lastSample.centro}</td>
+                <td>${lastSample.linea}</td>
+                <td>${lastSample.plataforma}</td>
+                <td>${(rotos / total * 100).toFixed(2)}</td>
+                <td>${(trizados / total * 100).toFixed(2)}</td>
+                <td>${(cholgas / total * 100).toFixed(2)}</td>
+                <td>${(malton / total * 100).toFixed(2)}</td>
+                <td>${(picorocos / total * 100).toFixed(2)}</td>
+                <td>${(otros / total * 100).toFixed(2)}</td>
+                <td>${(choritos / total * 100).toFixed(2)}</td>
+                <td>${lastSample.responsable}</td>
+                <td>${fotoHtml}</td>
+            `;
+            tbody.appendChild(row);
+        } else {
+            alert('No hay datos de muestreo registrados.');
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+

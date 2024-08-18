@@ -1,0 +1,46 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #e0f7fa;
+    background-image: url('https://www.example.com/your-aquatic-background.jpg'); /* Reemplaza con una URL válida */
+    background-size: cover;
+    color: #004d40;
+}
+
+h1 {
+    color: #00796b;
+}
+
+form {
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    display: inline-block;
+    margin-top: 20px;
+}
+
+input, select, textarea, button {
+    padding: 10px;
+    margin: 5px;
+    border: 1px solid #004d40;
+    border-radius: 5px;
+}
+
+button {
+    background-color: #00796b;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #004d40;
+}
+
+#resultados {
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    display: inline-block;
+    margin-top: 20px;
+    text-align: left;
+}
