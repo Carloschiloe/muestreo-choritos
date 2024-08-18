@@ -193,17 +193,31 @@
         document.getElementById('muestreoForm').addEventListener('submit', function(event) {
             event.preventDefault();
             const formData = new FormData(this);
+            const fileInput = document.getElementById('foto');
+            const file = fileInput.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onloadend = function() {
+                    formData.set('foto', reader.result);
+                    saveSample(formData);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                saveSample(formData);
+            }
+        });
+
+        function saveSample(formData) {
             const sampleData = Object.fromEntries(formData.entries());
 
             if (editIndex !== null) {
-                // Actualizar muestra existente
                 let storedSamples = JSON.parse(localStorage.getItem('storedSamples')) || [];
                 storedSamples[editIndex] = sampleData;
                 localStorage.setItem('storedSamples', JSON.stringify(storedSamples));
                 alert('Datos actualizados exitosamente.');
-                editIndex = null; // Restablecer la edición
+                editIndex = null;
             } else {
-                // Guardar nueva muestra
                 localStorage.setItem('lastSample', JSON.stringify(sampleData));
                 let storedSamples = JSON.parse(localStorage.getItem('storedSamples')) || [];
                 storedSamples.push(sampleData);
@@ -212,9 +226,8 @@
             }
 
             clearForm();
-        });
+        }
 
-        // Cargar datos al formulario si se está editando
         window.onload = function() {
             updateDateTimeAndTemperature();
             updateUnits();
@@ -292,7 +305,6 @@
             }
         }
 
-        // Cambiar etiquetas de unidades
         function updateUnits() {
             const tipoMuestreo = document.getElementById('tipoMuestreo').value;
             const unidad = tipoMuestreo === 'peso' ? 'grs' : 'unds';
@@ -308,4 +320,3 @@
 </body>
 
 </html>
-
