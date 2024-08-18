@@ -94,6 +94,19 @@
         // Recuperar los datos de muestreo guardados
         let storedSamples = JSON.parse(localStorage.getItem('storedSamples')) || [];
 
+        // Eliminar duplicados basados en las claves únicas
+        storedSamples = storedSamples.filter((sample, index, self) =>
+            index === self.findIndex((t) => (
+                t.fecha === sample.fecha && 
+                t.hora === sample.hora &&
+                t.centro === sample.centro &&
+                t.linea === sample.linea &&
+                t.plataforma === sample.plataforma
+            ))
+        );
+
+        localStorage.setItem('storedSamples', JSON.stringify(storedSamples));
+
         const tbody = document.getElementById('summaryTableBody');
 
         // Mostrar los datos almacenados
@@ -136,44 +149,56 @@
         // Guardar el nuevo muestreo al almacenamiento
         const lastSample = JSON.parse(localStorage.getItem('lastSample'));
         if (lastSample) {
-            storedSamples.push(lastSample);
-            localStorage.setItem('storedSamples', JSON.stringify(storedSamples));
+            const isDuplicate = storedSamples.some(sample =>
+                sample.fecha === lastSample.fecha &&
+                sample.hora === lastSample.hora &&
+                sample.centro === lastSample.centro &&
+                sample.linea === lastSample.linea &&
+                sample.plataforma === lastSample.plataforma
+            );
 
-            const row = document.createElement('tr');
-            const total = parseFloat(lastSample.total) || 0;
-            const rotos = parseFloat(lastSample.rotos) || 0;
-            const trizados = parseFloat(lastSample.trizados) || 0;
-            const cholgas = parseFloat(lastSample.cholgas) || 0;
-            const malton = parseFloat(lastSample.malton) || 0;
-            const picorocos = parseFloat(lastSample.picorocos) || 0;
-            const otros = parseFloat(lastSample.otros) || 0;
-            const choritos = total - (rotos + trizados + cholgas + malton + picorocos + otros);
+            // Sólo agregar si no es un duplicado
+            if (!isDuplicate) {
+                storedSamples.push(lastSample);
+                localStorage.setItem('storedSamples', JSON.stringify(storedSamples));
 
-            const fotoUrl = lastSample.foto || "";
-            const fotoHtml = fotoUrl ? `<a href="${fotoUrl}" target="_blank"><img src="${fotoUrl}" class="thumbnail" alt="Foto"></a>` : "No disponible";
+                const row = document.createElement('tr');
+                const total = parseFloat(lastSample.total) || 0;
+                const rotos = parseFloat(lastSample.rotos) || 0;
+                const trizados = parseFloat(lastSample.trizados) || 0;
+                const cholgas = parseFloat(lastSample.cholgas) || 0;
+                const malton = parseFloat(lastSample.malton) || 0;
+                const picorocos = parseFloat(lastSample.picorocos) || 0;
+                const otros = parseFloat(lastSample.otros) || 0;
+                const choritos = total - (rotos + trizados + cholgas + malton + picorocos + otros);
 
-            row.innerHTML = `
-                <td>${lastSample.fecha}</td>
-                <td>${lastSample.hora}</td>
-                <td>${lastSample.temperatura}</td>
-                <td>${lastSample.centro}</td>
-                <td>${lastSample.linea}</td>
-                <td>${lastSample.plataforma}</td>
-                <td>${(rotos / total * 100).toFixed(2)}</td>
-                <td>${(trizados / total * 100).toFixed(2)}</td>
-                <td>${(cholgas / total * 100).toFixed(2)}</td>
-                <td>${(malton / total * 100).toFixed(2)}</td>
-                <td>${(picorocos / total * 100).toFixed(2)}</td>
-                <td>${(otros / total * 100).toFixed(2)}</td>
-                <td>${(choritos / total * 100).toFixed(2)}</td>
-                <td>${lastSample.responsable}</td>
-                <td>${fotoHtml}</td>
-            `;
-            tbody.appendChild(row);
+                const fotoUrl = lastSample.foto || "";
+                const fotoHtml = fotoUrl ? `<a href="${fotoUrl}" target="_blank"><img src="${fotoUrl}" class="thumbnail" alt="Foto"></a>` : "No disponible";
+
+                row.innerHTML = `
+                    <td>${lastSample.fecha}</td>
+                    <td>${lastSample.hora}</td>
+                    <td>${lastSample.temperatura}</td>
+                    <td>${lastSample.centro}</td>
+                    <td>${lastSample.linea}</td>
+                    <td>${lastSample.plataforma}</td>
+                    <td>${(rotos / total * 100).toFixed(2)}</td>
+                    <td>${(trizados / total * 100).toFixed(2)}</td>
+                    <td>${(cholgas / total * 100).toFixed(2)}</td>
+                    <td>${(malton / total * 100).toFixed(2)}</td>
+                    <td>${(picorocos / total * 100).toFixed(2)}</td>
+                    <td>${(otros / total * 100).toFixed(2)}</td>
+                    <td>${(choritos / total * 100).toFixed(2)}</td>
+                    <td>${lastSample.responsable}</td>
+                    <td>${fotoHtml}</td>
+                `;
+                tbody.appendChild(row);
+            }
         }
     </script>
 </body>
 </html>
+
 
 
 
