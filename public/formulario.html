@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <title>Muestreo de Choritos</title>
@@ -11,16 +10,13 @@
             font-family: Arial, sans-serif;
             margin: 20px;
         }
-
         .container {
             max-width: 600px;
             margin: auto;
         }
-
         .form-group {
             margin-bottom: 15px;
         }
-
         button {
             padding: 10px 20px;
             background-color: #4CAF50;
@@ -28,27 +24,22 @@
             border: none;
             cursor: pointer;
         }
-
         button:hover {
             background-color: #45a049;
         }
-
         .logo {
             display: block;
             margin: 0 auto 20px;
             max-width: 100px;
         }
-
         .small-input {
             width: 40%;
         }
-
         .date-time-temp {
             text-align: center;
             margin-top: 20px;
             font-size: 1rem;
         }
-
         .floating-window {
             position: fixed;
             top: 300px;
@@ -59,26 +50,21 @@
             border: 1px solid #ddd;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-
         #observaciones {
             width: 50%;
         }
     </style>
 </head>
-
 <body>
     <div class="container">
         <img src="Imagenes/camanchaca.png" alt="Logo de la Empresa" class="logo">
         <h1 class="text-center">Registro de Muestreo de Choritos</h1>
-
         <div class="date-time-temp">
             Fecha: <span id="fecha"></span> |
             Hora: <span id="hora"></span> |
             Temperatura: <span id="temperatura">N/A</span> °C
         </div>
-
         <button type="button" class="btn btn-primary" onclick="copyLastSample()">Copiar Último Muestreo</button>
-
         <form id="muestreoForm" enctype="multipart/form-data">
             <div class="form-group">
                 <label for="centro">Nombre Centro de Cultivo:</label>
@@ -284,8 +270,8 @@
         }
     </script>
 </body>
-
 </html>
+
 
 
 
