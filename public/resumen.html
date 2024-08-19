@@ -31,6 +31,7 @@
             vertical-align: middle;
             padding: 10px;
             font-size: 14px;
+            word-wrap: break-word; /* Ajustar palabras largas */
         }
 
         .summary-table th {
@@ -79,6 +80,12 @@
                 height: 25px;
             }
         }
+
+        .filter-dropdown {
+            padding: 5px;
+            font-size: 12px;
+            width: 100%;
+        }
     </style>
 </head>
 
@@ -88,21 +95,81 @@
         <table class="table table-bordered summary-table">
             <thead>
                 <tr>
-                    <th>Fecha</th>
-                    <th>Hora</th>
-                    <th>Temp (°C)</th>
-                    <th>Centro Cultivo</th>
-                    <th>N° Línea</th>
-                    <th>Plataforma</th>
-                    <th>Rotos (%)</th>
-                    <th>Trizados (%)</th>
-                    <th>Cholgas (%)</th>
-                    <th>Malton (%)</th>
-                    <th>Picorocos (%)</th>
-                    <th>Otros (%)</th>
-                    <th>Choritos (%)</th>
-                    <th>Observaciones</th>
-                    <th>Responsable</th>
+                    <th>Fecha
+                        <select class="filter-dropdown" onchange="filterColumn(0)">
+                            <option value="">Todos</option>
+                        </select>
+                    </th>
+                    <th>Hora
+                        <select class="filter-dropdown" onchange="filterColumn(1)">
+                            <option value="">Todos</option>
+                        </select>
+                    </th>
+                    <th>Temp (°C)
+                        <select class="filter-dropdown" onchange="filterColumn(2)">
+                            <option value="">Todos</option>
+                        </select>
+                    </th>
+                    <th>Centro Cultivo
+                        <select class="filter-dropdown" onchange="filterColumn(3)">
+                            <option value="">Todos</option>
+                        </select>
+                    </th>
+                    <th>N° Línea
+                        <select class="filter-dropdown" onchange="filterColumn(4)">
+                            <option value="">Todos</option>
+                        </select>
+                    </th>
+                    <th>Plataforma
+                        <select class="filter-dropdown" onchange="filterColumn(5)">
+                            <option value="">Todos</option>
+                        </select>
+                    </th>
+                    <th>Rotos (%)
+                        <select class="filter-dropdown" onchange="filterColumn(6)">
+                            <option value="">Todos</option>
+                        </select>
+                    </th>
+                    <th>Trizados (%)
+                        <select class="filter-dropdown" onchange="filterColumn(7)">
+                            <option value="">Todos</option>
+                        </select>
+                    </th>
+                    <th>Cholgas (%)
+                        <select class="filter-dropdown" onchange="filterColumn(8)">
+                            <option value="">Todos</option>
+                        </select>
+                    </th>
+                    <th>Malton (%)
+                        <select class="filter-dropdown" onchange="filterColumn(9)">
+                            <option value="">Todos</option>
+                        </select>
+                    </th>
+                    <th>Picorocos (%)
+                        <select class="filter-dropdown" onchange="filterColumn(10)">
+                            <option value="">Todos</option>
+                        </select>
+                    </th>
+                    <th>Otros (%)
+                        <select class="filter-dropdown" onchange="filterColumn(11)">
+                            <option value="">Todos</option>
+                        </select>
+                    </th>
+                    <th>Choritos (%)
+                        <select class="filter-dropdown" onchange="filterColumn(12)">
+                            <option value="">Todos</option>
+                        </select>
+                    </th>
+                    <th>Observaciones
+                        <select class="filter-dropdown" onchange="filterColumn(13)">
+                            <option value="">Todos</option>
+                        </select>
+                    </th>
+                    <th>Responsable
+                        <select class="filter-dropdown" onchange="filterColumn(14)">
+                            <option value="">Todos</option>
+                        </select>
+                    </th>
                     <th>Foto</th>
                     <th>Acciones</th>
                 </tr>
@@ -116,10 +183,69 @@
     <script>
         let storedSamples = JSON.parse(localStorage.getItem('storedSamples')) || [];
         const tbody = document.getElementById('summaryTableBody');
+        const filterDropdowns = document.querySelectorAll('.filter-dropdown');
 
-        function displaySamples() {
+        // Generar las opciones para los filtros
+        function populateFilters() {
+            const columnsData = Array.from({ length: 15 }, () => new Set());
+
+            storedSamples.forEach(sample => {
+                columnsData[0].add(sample.fecha);
+                columnsData[1].add(sample.hora);
+                columnsData[2].add(sample.temperatura);
+                columnsData[3].add(sample.centro);
+                columnsData[4].add(sample.linea);
+                columnsData[5].add(sample.plataforma);
+                columnsData[6].add(((parseFloat(sample.rotos) / parseFloat(sample.total)) * 100).toFixed(2));
+                columnsData[7].add(((parseFloat(sample.trizados) / parseFloat(sample.total)) * 100).toFixed(2));
+                columnsData[8].add(((parseFloat(sample.cholgas) / parseFloat(sample.total)) * 100).toFixed(2));
+                columnsData[9].add(((parseFloat(sample.malton) / parseFloat(sample.total)) * 100).toFixed(2));
+                columnsData[10].add(((parseFloat(sample.picorocos) / parseFloat(sample.total)) * 100).toFixed(2));
+                columnsData[11].add(((parseFloat(sample.otros) / parseFloat(sample.total)) * 100).toFixed(2));
+                columnsData[12].add(((parseFloat(sample.total) - (parseFloat(sample.rotos) + parseFloat(sample.trizados) + parseFloat(sample.cholgas) + parseFloat(sample.malton) + parseFloat(sample.picorocos) + parseFloat(sample.otros))) / parseFloat(sample.total) * 100).toFixed(2));
+                columnsData[13].add(sample.observaciones);
+                columnsData[14].add(sample.responsable);
+            });
+
+            filterDropdowns.forEach((dropdown, index) => {
+                const options = Array.from(columnsData[index]).sort();
+                options.forEach(option => {
+                    const optionElement = document.createElement('option');
+                    optionElement.value = option;
+                    optionElement.textContent = option;
+                    dropdown.appendChild(optionElement);
+                });
+            });
+        }
+
+        // Filtrar por columna seleccionada
+        function filterColumn(columnIndex) {
+            const selectedValue = filterDropdowns[columnIndex].value;
+            const filteredSamples = selectedValue === "" ? storedSamples : storedSamples.filter(sample => {
+                switch (columnIndex) {
+                    case 0: return sample.fecha === selectedValue;
+                    case 1: return sample.hora === selectedValue;
+                    case 2: return sample.temperatura === selectedValue;
+                    case 3: return sample.centro === selectedValue;
+                    case 4: return sample.linea === selectedValue;
+                    case 5: return sample.plataforma === selectedValue;
+                    case 6: return ((parseFloat(sample.rotos) / parseFloat(sample.total)) * 100).toFixed(2) === selectedValue;
+                    case 7: return ((parseFloat(sample.trizados) / parseFloat(sample.total)) * 100).toFixed(2) === selectedValue;
+                    case 8: return ((parseFloat(sample.cholgas) / parseFloat(sample.total)) * 100).toFixed(2) === selectedValue;
+                    case 9: return ((parseFloat(sample.malton) / parseFloat(sample.total)) * 100).toFixed(2) === selectedValue;
+                    case 10: return ((parseFloat(sample.picorocos) / parseFloat(sample.total)) * 100).toFixed(2) === selectedValue;
+                    case 11: return ((parseFloat(sample.otros) / parseFloat(sample.total)) * 100).toFixed(2) === selectedValue;
+                    case 12: return ((parseFloat(sample.total) - (parseFloat(sample.rotos) + parseFloat(sample.trizados) + parseFloat(sample.cholgas) + parseFloat(sample.malton) + parseFloat(sample.picorocos) + parseFloat(sample.otros))) / parseFloat(sample.total) * 100).toFixed(2) === selectedValue;
+                    case 13: return sample.observaciones === selectedValue;
+                    case 14: return sample.responsable === selectedValue;
+                }
+            });
+            displaySamples(filteredSamples);
+        }
+
+        function displaySamples(samples = storedSamples) {
             tbody.innerHTML = '';
-            storedSamples.slice().reverse().forEach((sample, index) => {
+            samples.slice().reverse().forEach((sample, index) => {
                 const row = document.createElement('tr');
                 const total = parseFloat(sample.total) || 0;
                 const rotos = parseFloat(sample.rotos) || 0;
@@ -174,6 +300,7 @@
             }
         }
 
+        populateFilters();
         displaySamples();
     </script>
 </body>
