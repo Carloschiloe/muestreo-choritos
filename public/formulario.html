@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Registro de Muestreo de Choritos</title>
+    <title>Muestreo de Choritos</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
@@ -191,35 +191,77 @@
             const file = fileInput.files[0];
 
             if (file) {
-                const reader = new FileReader();
-                reader.onloadend = function() {
-                    saveSample(formData, reader.result); 
-                };
-                reader.readAsDataURL(file); 
+                // Verificar el tamaño de la imagen antes de intentar cargarla
+                if (file.size > 1024 * 1024) { // Limitar a 1 MB
+                    alert('La imagen es demasiado grande. Vamos a redimensionarla.');
+                    resizeImage(file, 1024, function(resizedImageDataUrl) {
+                        saveSample(formData, resizedImageDataUrl); // Guardar muestra con la imagen redimensionada
+                    });
+                } else {
+                    const reader = new FileReader();
+                    reader.onloadend = function() {
+                        saveSample(formData, reader.result); // Guardar muestra con la imagen
+                    };
+                    reader.readAsDataURL(file);
+                }
             } else {
-                saveSample(formData, null); 
+                saveSample(formData, null); // Guardar sin imagen
             }
         });
 
+        function resizeImage(file, maxSize, callback) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.src = event.target.result;
+
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > maxSize) {
+                            height = Math.round((height *= maxSize / width));
+                            width = maxSize;
+                        }
+                    } else {
+                        if (height > maxSize) {
+                            width = Math.round((width *= maxSize / height));
+                            height = maxSize;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    callback(canvas.toDataURL('image/jpeg')); // Redimensionado a base64
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+
         function saveSample(formData, fotoData) {
             const sampleData = Object.fromEntries(formData.entries());
-            sampleData.foto = fotoData || ''; 
+            sampleData.foto = fotoData || ''; // Asignar imagen en base64 si está disponible
             sampleData.fecha = document.getElementById('hiddenFecha').value;
             sampleData.hora = document.getElementById('hiddenHora').value;
             sampleData.temperatura = document.getElementById('hiddenTemperatura').value;
 
             let storedSamples = JSON.parse(localStorage.getItem('storedSamples')) || [];
             if (editIndex !== null) {
-                storedSamples[editIndex] = sampleData; 
+                storedSamples[editIndex] = sampleData; // Editar muestra existente
                 editIndex = null;
             } else {
-                storedSamples.push(sampleData); 
+                storedSamples.push(sampleData); // Añadir nueva muestra
             }
 
-            localStorage.setItem('storedSamples', JSON.stringify(storedSamples)); 
-            localStorage.setItem('lastSample', JSON.stringify(sampleData)); 
+            localStorage.setItem('storedSamples', JSON.stringify(storedSamples)); // Almacenar muestras
+            localStorage.setItem('lastSample', JSON.stringify(sampleData)); // Almacenar la última muestra
             alert('Datos guardados exitosamente.');
-            clearForm(); 
+            clearForm(); // Limpiar formulario
         }
 
         window.onload = async function() {
@@ -229,6 +271,7 @@
             document.getElementById('hiddenFecha').value = now.toLocaleDateString();
             document.getElementById('hiddenHora').value = now.toLocaleTimeString();
 
+            // Obtener temperatura
             const apiKey = 'e8d54296932b2069dfee21442c327dcb';
             const ciudad = 'Castro,CL';
             const url = `https://api.openweathermap.org/data/2.5/weather?q=${ciudad}&units=metric&appid=${apiKey}`;
@@ -243,6 +286,7 @@
                 document.getElementById('hiddenTemperatura').value = 'N/A';
             }
 
+            // Verificar si hay muestra en edición
             const editIndexFromStorage = localStorage.getItem('editIndex');
             if (editIndexFromStorage !== null) {
                 const storedSamples = JSON.parse(localStorage.getItem('storedSamples')) || [];
@@ -291,6 +335,7 @@
 </body>
 
 </html>
+
 
 
 
