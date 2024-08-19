@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <title>Muestreo de Choritos</title>
@@ -10,13 +11,16 @@
             font-family: Arial, sans-serif;
             margin: 20px;
         }
+
         .container {
             max-width: 600px;
             margin: auto;
         }
+
         .form-group {
             margin-bottom: 15px;
         }
+
         button {
             padding: 10px 20px;
             background-color: #4CAF50;
@@ -24,22 +28,30 @@
             border: none;
             cursor: pointer;
         }
+
         button:hover {
             background-color: #45a049;
         }
+
         .logo {
             display: block;
             margin: 0 auto 20px;
             max-width: 100px;
         }
+
+        /* Ajustar el ancho de los campos seleccionados al 40% */
         .small-input {
             width: 40%;
         }
+
+        /* Estilo para la línea de Fecha, Hora y Temperatura */
         .date-time-temp {
             text-align: center;
             margin-top: 20px;
             font-size: 1rem;
         }
+
+        /* Ventana flotante ajustada */
         .floating-window {
             position: fixed;
             top: 300px;
@@ -50,20 +62,25 @@
             border: 1px solid #ddd;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+
         #observaciones {
             width: 50%;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <img src="Imagenes/camanchaca.png" alt="Logo de la Empresa" class="logo">
         <h1 class="text-center">Registro de Muestreo de Choritos</h1>
+
+        <!-- Mostrar fecha, hora y temperatura en una sola línea -->
         <div class="date-time-temp">
             Fecha: <span id="fecha"></span> |
             Hora: <span id="hora"></span> |
             Temperatura: <span id="temperatura">N/A</span> °C
         </div>
+
         <button type="button" class="btn btn-primary" onclick="copyLastSample()">Copiar Último Muestreo</button>
         <form id="muestreoForm" enctype="multipart/form-data">
             <div class="form-group">
@@ -170,37 +187,41 @@
         document.getElementById('muestreoForm').addEventListener('submit', function(event) {
             event.preventDefault();
             const formData = new FormData(this);
-            const file = document.getElementById('foto').files[0];
-            const sampleData = Object.fromEntries(formData.entries());
-
-            const storeSample = (photo) => {
-                sampleData.foto = photo || '';
-                sampleData.fecha = document.getElementById('hiddenFecha').value;
-                sampleData.hora = document.getElementById('hiddenHora').value;
-                sampleData.temperatura = document.getElementById('hiddenTemperatura').value;
-
-                let storedSamples = JSON.parse(localStorage.getItem('storedSamples')) || [];
-                if (editIndex !== null) {
-                    storedSamples[editIndex] = sampleData;
-                    editIndex = null;
-                } else {
-                    storedSamples.push(sampleData);
-                }
-
-                localStorage.setItem('storedSamples', JSON.stringify(storedSamples));
-                localStorage.setItem('lastSample', JSON.stringify(sampleData));
-                alert('Datos guardados exitosamente.');
-                clearForm();
-            };
+            const fileInput = document.getElementById('foto');
+            const file = fileInput.files[0];
 
             if (file) {
+                // Intentaremos obtener la imagen capturada
                 const reader = new FileReader();
-                reader.onloadend = () => storeSample(reader.result);
-                reader.readAsDataURL(file);
+                reader.onloadend = function() {
+                    saveSample(formData, reader.result); // Guardar muestra con la imagen
+                };
+                reader.readAsDataURL(file); // Convertir imagen a base64
             } else {
-                storeSample();
+                saveSample(formData, null); // Guardar sin imagen
             }
         });
+
+        function saveSample(formData, fotoData) {
+            const sampleData = Object.fromEntries(formData.entries());
+            sampleData.foto = fotoData || ''; // Asignar imagen en base64 si está disponible
+            sampleData.fecha = document.getElementById('hiddenFecha').value;
+            sampleData.hora = document.getElementById('hiddenHora').value;
+            sampleData.temperatura = document.getElementById('hiddenTemperatura').value;
+
+            let storedSamples = JSON.parse(localStorage.getItem('storedSamples')) || [];
+            if (editIndex !== null) {
+                storedSamples[editIndex] = sampleData; // Editar muestra existente
+                editIndex = null;
+            } else {
+                storedSamples.push(sampleData); // Añadir nueva muestra
+            }
+
+            localStorage.setItem('storedSamples', JSON.stringify(storedSamples)); // Almacenar muestras
+            localStorage.setItem('lastSample', JSON.stringify(sampleData)); // Almacenar la última muestra
+            alert('Datos guardados exitosamente.');
+            clearForm(); // Limpiar formulario
+        }
 
         window.onload = async function() {
             const now = new Date();
@@ -209,6 +230,7 @@
             document.getElementById('hiddenFecha').value = now.toLocaleDateString();
             document.getElementById('hiddenHora').value = now.toLocaleTimeString();
 
+            // Obtener temperatura
             const apiKey = 'e8d54296932b2069dfee21442c327dcb';
             const ciudad = 'Castro,CL';
             const url = `https://api.openweathermap.org/data/2.5/weather?q=${ciudad}&units=metric&appid=${apiKey}`;
@@ -219,11 +241,11 @@
                 document.getElementById('temperatura').textContent = temperatura;
                 document.getElementById('hiddenTemperatura').value = temperatura;
             } catch (error) {
-                console.error('Error al obtener la temperatura:', error);
                 document.getElementById('temperatura').textContent = 'N/A';
                 document.getElementById('hiddenTemperatura').value = 'N/A';
             }
 
+            // Verificar si hay muestra en edición
             const editIndexFromStorage = localStorage.getItem('editIndex');
             if (editIndexFromStorage !== null) {
                 const storedSamples = JSON.parse(localStorage.getItem('storedSamples')) || [];
@@ -270,7 +292,9 @@
         }
     </script>
 </body>
+
 </html>
+
 
 
 
