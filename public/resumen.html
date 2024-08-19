@@ -31,7 +31,7 @@
             vertical-align: middle;
             padding: 10px;
             font-size: 14px;
-            word-wrap: break-word; /* Ajustar palabras largas */
+            word-wrap: break-word;
         }
 
         .summary-table th {
@@ -54,7 +54,6 @@
             text-decoration: underline;
         }
 
-        /* Estilos responsivos */
         @media (max-width: 768px) {
             .summary-table th,
             .summary-table td {
@@ -86,92 +85,185 @@
             font-size: 12px;
             width: 100%;
         }
+
+        .column-toggle {
+            margin-bottom: 10px;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .column-toggle label {
+            margin-right: 10px;
+        }
+
+        .column-header-checkbox {
+            float: left;
+            margin-right: 5px;
+        }
+
+        .filter-row {
+            display: table-row;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
         <h1 class="text-center">Resumen de Resultados</h1>
-        <table class="table table-bordered summary-table">
+
+        <!-- Checkboxes para mostrar las columnas ocultas -->
+        <div class="column-toggle" id="columnToggle">
+            <!-- Las columnas ocultas aparecerán aquí -->
+        </div>
+
+        <table class="table table-bordered summary-table" id="dataTable">
             <thead>
                 <tr>
-                    <th>Fecha
+                    <th>
+                        <input type="checkbox" class="column-header-checkbox" data-column="0">
+                        Fecha
+                    </th>
+                    <th>
+                        <input type="checkbox" class="column-header-checkbox" data-column="1">
+                        Hora
+                    </th>
+                    <th>
+                        <input type="checkbox" class="column-header-checkbox" data-column="2">
+                        Temp (°C)
+                    </th>
+                    <th>
+                        <input type="checkbox" class="column-header-checkbox" data-column="3">
+                        Centro Cultivo
+                    </th>
+                    <th>
+                        <input type="checkbox" class="column-header-checkbox" data-column="4">
+                        N° Línea
+                    </th>
+                    <th>
+                        <input type="checkbox" class="column-header-checkbox" data-column="5">
+                        Plataforma
+                    </th>
+                    <th>
+                        <input type="checkbox" class="column-header-checkbox" data-column="6">
+                        Rotos (%)
+                    </th>
+                    <th>
+                        <input type="checkbox" class="column-header-checkbox" data-column="7">
+                        Trizados (%)
+                    </th>
+                    <th>
+                        <input type="checkbox" class="column-header-checkbox" data-column="8">
+                        Cholgas (%)
+                    </th>
+                    <th>
+                        <input type="checkbox" class="column-header-checkbox" data-column="9">
+                        Malton (%)
+                    </th>
+                    <th>
+                        <input type="checkbox" class="column-header-checkbox" data-column="10">
+                        Picorocos (%)
+                    </th>
+                    <th>
+                        <input type="checkbox" class="column-header-checkbox" data-column="11">
+                        Otros (%)
+                    </th>
+                    <th>
+                        <input type="checkbox" class="column-header-checkbox" data-column="12">
+                        Choritos (%)
+                    </th>
+                    <th>
+                        <input type="checkbox" class="column-header-checkbox" data-column="13">
+                        Observaciones
+                    </th>
+                    <th>
+                        <input type="checkbox" class="column-header-checkbox" data-column="14">
+                        Responsable
+                    </th>
+                    <th>
+                        <input type="checkbox" class="column-header-checkbox" data-column="15">
+                        Foto
+                    </th>
+                    <th>Acciones</th>
+                </tr>
+                <!-- Fila de Filtros -->
+                <tr class="filter-row">
+                    <td>
                         <select class="filter-dropdown" onchange="filterColumn(0)">
                             <option value="">Todos</option>
                         </select>
-                    </th>
-                    <th>Hora
+                    </td>
+                    <td>
                         <select class="filter-dropdown" onchange="filterColumn(1)">
                             <option value="">Todos</option>
                         </select>
-                    </th>
-                    <th>Temp (°C)
+                    </td>
+                    <td>
                         <select class="filter-dropdown" onchange="filterColumn(2)">
                             <option value="">Todos</option>
                         </select>
-                    </th>
-                    <th>Centro Cultivo
+                    </td>
+                    <td>
                         <select class="filter-dropdown" onchange="filterColumn(3)">
                             <option value="">Todos</option>
                         </select>
-                    </th>
-                    <th>N° Línea
+                    </td>
+                    <td>
                         <select class="filter-dropdown" onchange="filterColumn(4)">
                             <option value="">Todos</option>
                         </select>
-                    </th>
-                    <th>Plataforma
+                    </td>
+                    <td>
                         <select class="filter-dropdown" onchange="filterColumn(5)">
                             <option value="">Todos</option>
                         </select>
-                    </th>
-                    <th>Rotos (%)
+                    </td>
+                    <td>
                         <select class="filter-dropdown" onchange="filterColumn(6)">
                             <option value="">Todos</option>
                         </select>
-                    </th>
-                    <th>Trizados (%)
+                    </td>
+                    <td>
                         <select class="filter-dropdown" onchange="filterColumn(7)">
                             <option value="">Todos</option>
                         </select>
-                    </th>
-                    <th>Cholgas (%)
+                    </td>
+                    <td>
                         <select class="filter-dropdown" onchange="filterColumn(8)">
                             <option value="">Todos</option>
                         </select>
-                    </th>
-                    <th>Malton (%)
+                    </td>
+                    <td>
                         <select class="filter-dropdown" onchange="filterColumn(9)">
                             <option value="">Todos</option>
                         </select>
-                    </th>
-                    <th>Picorocos (%)
+                    </td>
+                    <td>
                         <select class="filter-dropdown" onchange="filterColumn(10)">
                             <option value="">Todos</option>
                         </select>
-                    </th>
-                    <th>Otros (%)
+                    </td>
+                    <td>
                         <select class="filter-dropdown" onchange="filterColumn(11)">
                             <option value="">Todos</option>
                         </select>
-                    </th>
-                    <th>Choritos (%)
+                    </td>
+                    <td>
                         <select class="filter-dropdown" onchange="filterColumn(12)">
                             <option value="">Todos</option>
                         </select>
-                    </th>
-                    <th>Observaciones
+                    </td>
+                    <td>
                         <select class="filter-dropdown" onchange="filterColumn(13)">
                             <option value="">Todos</option>
                         </select>
-                    </th>
-                    <th>Responsable
+                    </td>
+                    <td>
                         <select class="filter-dropdown" onchange="filterColumn(14)">
                             <option value="">Todos</option>
                         </select>
-                    </th>
-                    <th>Foto</th>
-                    <th>Acciones</th>
+                    </td>
+                    <td></td>
+                    <td></td>
                 </tr>
             </thead>
             <tbody id="summaryTableBody">
@@ -183,9 +275,59 @@
     <script>
         let storedSamples = JSON.parse(localStorage.getItem('storedSamples')) || [];
         const tbody = document.getElementById('summaryTableBody');
-        const filterDropdowns = document.querySelectorAll('.filter-dropdown');
+        const columnToggles = document.querySelectorAll('.column-header-checkbox');
+        const hiddenColumnsToggle = document.getElementById('columnToggle');
 
-        // Generar las opciones para los filtros
+        // Mostrar/ocultar columnas
+        function toggleColumnVisibility(columnIndex, show) {
+            const table = document.getElementById('dataTable');
+            const rows = table.rows;
+
+            for (let i = 0; i < rows.length; i++) {
+                const cell = rows[i].cells[columnIndex];
+                if (cell) {
+                    cell.style.display = show ? '' : 'none';
+                }
+            }
+        }
+
+        // Añadir opción para mostrar las columnas ocultas
+        function addHiddenColumnToggle(columnIndex) {
+            const label = document.createElement('label');
+            const columnTitle = getColumnTitle(columnIndex);
+            label.innerHTML = `<input type="checkbox" class="toggle-column" data-column="${columnIndex}"> Mostrar ${columnTitle}`;
+            hiddenColumnsToggle.appendChild(label);
+
+            const checkbox = label.querySelector('input');
+            checkbox.addEventListener('change', function () {
+                if (this.checked) {
+                    toggleColumnVisibility(columnIndex, true);
+                    hiddenColumnsToggle.removeChild(label);
+                    columnToggles[columnIndex].checked = false;
+                }
+            });
+        }
+
+        // Obtener título de columna
+        function getColumnTitle(columnIndex) {
+            const headers = document.querySelectorAll('.summary-table th');
+            return headers[columnIndex].textContent.trim();
+        }
+
+        // Manejar el evento de ocultar/mostrar columnas
+        columnToggles.forEach(checkbox => {
+            checkbox.addEventListener('change', function () {
+                const columnIndex = parseInt(this.dataset.column);
+                if (this.checked) {
+                    toggleColumnVisibility(columnIndex, false);
+                    addHiddenColumnToggle(columnIndex);
+                } else {
+                    toggleColumnVisibility(columnIndex, true);
+                }
+            });
+        });
+
+        // Población de filtros
         function populateFilters() {
             const columnsData = Array.from({ length: 15 }, () => new Set());
 
@@ -207,7 +349,7 @@
                 columnsData[14].add(sample.responsable);
             });
 
-            filterDropdowns.forEach((dropdown, index) => {
+            document.querySelectorAll('.filter-dropdown').forEach((dropdown, index) => {
                 const options = Array.from(columnsData[index]).sort();
                 options.forEach(option => {
                     const optionElement = document.createElement('option');
@@ -218,9 +360,9 @@
             });
         }
 
-        // Filtrar por columna seleccionada
+        // Filtrado de columnas
         function filterColumn(columnIndex) {
-            const selectedValue = filterDropdowns[columnIndex].value;
+            const selectedValue = document.querySelectorAll('.filter-dropdown')[columnIndex].value;
             const filteredSamples = selectedValue === "" ? storedSamples : storedSamples.filter(sample => {
                 switch (columnIndex) {
                     case 0: return sample.fecha === selectedValue;
@@ -243,6 +385,7 @@
             displaySamples(filteredSamples);
         }
 
+        // Mostrar las filas filtradas
         function displaySamples(samples = storedSamples) {
             tbody.innerHTML = '';
             samples.slice().reverse().forEach((sample, index) => {
