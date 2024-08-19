@@ -185,45 +185,58 @@
             event.preventDefault();
             const formData = new FormData(this);
             const file = document.getElementById('foto').files[0];
+            const sampleData = Object.fromEntries(formData.entries());
+
+            const storeSample = (photo) => {
+                sampleData.foto = photo || '';
+                sampleData.fecha = document.getElementById('hiddenFecha').value;
+                sampleData.hora = document.getElementById('hiddenHora').value;
+                sampleData.temperatura = document.getElementById('hiddenTemperatura').value;
+
+                let storedSamples = JSON.parse(localStorage.getItem('storedSamples')) || [];
+                if (editIndex !== null) {
+                    storedSamples[editIndex] = sampleData;
+                    editIndex = null;
+                } else {
+                    storedSamples.push(sampleData);
+                }
+
+                localStorage.setItem('storedSamples', JSON.stringify(storedSamples));
+                localStorage.setItem('lastSample', JSON.stringify(sampleData));
+                alert('Datos guardados exitosamente.');
+                clearForm();
+            };
 
             if (file) {
                 const reader = new FileReader();
-                reader.onloadend = function() {
-                    formData.set('foto', reader.result);
-                    saveSample(formData);
-                };
+                reader.onloadend = () => storeSample(reader.result);
                 reader.readAsDataURL(file);
             } else {
-                saveSample(formData);
+                storeSample();
             }
         });
 
-        function saveSample(formData) {
-            const sampleData = Object.fromEntries(formData.entries());
-            const storedSamples = JSON.parse(localStorage.getItem('storedSamples')) || [];
+        window.onload = async function() {
+            const now = new Date();
+            document.getElementById('fecha').textContent = now.toLocaleDateString();
+            document.getElementById('hora').textContent = now.toLocaleTimeString();
+            document.getElementById('hiddenFecha').value = now.toLocaleDateString();
+            document.getElementById('hiddenHora').value = now.toLocaleTimeString();
 
-            // Añadir datos de fecha, hora y temperatura al objeto de muestreo
-            sampleData.fecha = document.getElementById('hiddenFecha').value;
-            sampleData.hora = document.getElementById('hiddenHora').value;
-            sampleData.temperatura = document.getElementById('hiddenTemperatura').value;
-
-            if (editIndex !== null) {
-                storedSamples[editIndex] = sampleData;
-                alert('Datos actualizados exitosamente.');
-                editIndex = null;
-            } else {
-                storedSamples.push(sampleData);
-                localStorage.setItem('lastSample', JSON.stringify(sampleData));
-                alert('Datos guardados exitosamente.');
+            const apiKey = 'e8d54296932b2069dfee21442c327dcb';
+            const ciudad = 'Castro,CL';
+            const url = `https://api.openweathermap.org/data/2.5/weather?q=${ciudad}&units=metric&appid=${apiKey}`;
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                const temperatura = data.main.temp;
+                document.getElementById('temperatura').textContent = temperatura;
+                document.getElementById('hiddenTemperatura').value = temperatura;
+            } catch (error) {
+                console.error('Error al obtener la temperatura:', error);
+                document.getElementById('temperatura').textContent = 'N/A';
+                document.getElementById('hiddenTemperatura').value = 'N/A';
             }
-
-            localStorage.setItem('storedSamples', JSON.stringify(storedSamples));
-            clearForm();
-        }
-
-        window.onload = function() {
-            updateDateTimeAndTemperature();
-            updateUnits();
 
             const editIndexFromStorage = localStorage.getItem('editIndex');
             if (editIndexFromStorage !== null) {
@@ -261,31 +274,6 @@
 
         function capitalizeFirstLetter(string) {
             return string.charAt(0).toUpperCase() + string.slice(1);
-        }
-
-        async function updateDateTimeAndTemperature() {
-            const now = new Date();
-            document.getElementById('fecha').textContent = now.toLocaleDateString();
-            document.getElementById('hora').textContent = now.toLocaleTimeString();
-
-            document.getElementById('hiddenFecha').value = now.toLocaleDateString();
-            document.getElementById('hiddenHora').value = now.toLocaleTimeString();
-
-            const ciudad = 'Castro,CL';
-            const apiKey = 'e8d54296932b2069dfee21442c327dcb';
-            const url = `https://api.openweathermap.org/data/2.5/weather?q=${ciudad}&units=metric&appid=${apiKey}`;
-
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                const temperatura = data.main.temp;
-                document.getElementById('temperatura').textContent = temperatura;
-                document.getElementById('hiddenTemperatura').value = temperatura;
-            } catch (error) {
-                console.error('Error al obtener la temperatura:', error);
-                document.getElementById('temperatura').textContent = 'N/A';
-                document.getElementById('hiddenTemperatura').value = 'N/A';
-            }
         }
 
         function updateUnits() {
