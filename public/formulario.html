@@ -39,19 +39,16 @@
             max-width: 100px;
         }
 
-        /* Ajustar el ancho de los campos seleccionados al 40% */
         .small-input {
             width: 40%;
         }
 
-        /* Estilo para la línea de Fecha, Hora y Temperatura */
         .date-time-temp {
             text-align: center;
             margin-top: 20px;
             font-size: 1rem;
         }
 
-        /* Ventana flotante ajustada */
         .floating-window {
             position: fixed;
             top: 300px;
@@ -63,7 +60,6 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
-        /* Reducir el ancho del campo de observaciones en un 50% */
         #observaciones {
             width: 50%;
         }
@@ -75,7 +71,6 @@
         <img src="Imagenes/camanchaca.png" alt="Logo de la Empresa" class="logo">
         <h1 class="text-center">Registro de Muestreo de Choritos</h1>
 
-        <!-- Mostrar fecha, hora y temperatura en una sola línea -->
         <div class="date-time-temp">
             Fecha: <span id="fecha"></span> |
             Hora: <span id="hora"></span> |
@@ -83,6 +78,7 @@
         </div>
 
         <button type="button" class="btn btn-primary" onclick="copyLastSample()">Copiar Último Muestreo</button>
+
         <form id="muestreoForm" enctype="multipart/form-data">
             <div class="form-group">
                 <label for="centro">Nombre Centro de Cultivo:</label>
@@ -143,21 +139,17 @@
                 <label for="foto">Tomar Foto:</label>
                 <input type="file" class="form-control" id="foto" name="foto" accept="image/*" capture="environment">
             </div>
-            <!-- Campos ocultos para registrar la fecha, hora y temperatura -->
             <input type="hidden" id="hiddenFecha" name="fecha">
             <input type="hidden" id="hiddenHora" name="hora">
             <input type="hidden" id="hiddenTemperatura" name="temperatura">
-
             <button type="submit" class="btn btn-success">Registrar</button>
         </form>
 
-        <!-- Enlace al resumen -->
         <div class="mt-4">
             <a href="resumen.html" class="btn btn-info">Ver Resumen de Resultados</a>
         </div>
     </div>
 
-    <!-- Ventana flotante -->
     <div class="floating-window">
         <h4>% Tiempo Real</h4>
         <p>Rotos: <span id="resultadoRotos">0</span>%</p>
@@ -183,7 +175,6 @@
                 alert('No hay datos de muestreo anteriores para copiar.');
                 return;
             }
-
             document.getElementById('centro').value = lastSample.centro || '';
             document.getElementById('linea').value = lastSample.linea || '';
             document.getElementById('plataforma').value = lastSample.plataforma || '';
@@ -193,8 +184,7 @@
         document.getElementById('muestreoForm').addEventListener('submit', function(event) {
             event.preventDefault();
             const formData = new FormData(this);
-            const fileInput = document.getElementById('foto');
-            const file = fileInput.files[0];
+            const file = document.getElementById('foto').files[0];
 
             if (file) {
                 const reader = new FileReader();
@@ -210,21 +200,24 @@
 
         function saveSample(formData) {
             const sampleData = Object.fromEntries(formData.entries());
+            const storedSamples = JSON.parse(localStorage.getItem('storedSamples')) || [];
+
+            // Añadir datos de fecha, hora y temperatura al objeto de muestreo
+            sampleData.fecha = document.getElementById('hiddenFecha').value;
+            sampleData.hora = document.getElementById('hiddenHora').value;
+            sampleData.temperatura = document.getElementById('hiddenTemperatura').value;
 
             if (editIndex !== null) {
-                let storedSamples = JSON.parse(localStorage.getItem('storedSamples')) || [];
                 storedSamples[editIndex] = sampleData;
-                localStorage.setItem('storedSamples', JSON.stringify(storedSamples));
                 alert('Datos actualizados exitosamente.');
                 editIndex = null;
             } else {
-                localStorage.setItem('lastSample', JSON.stringify(sampleData));
-                let storedSamples = JSON.parse(localStorage.getItem('storedSamples')) || [];
                 storedSamples.push(sampleData);
-                localStorage.setItem('storedSamples', JSON.stringify(storedSamples));
+                localStorage.setItem('lastSample', JSON.stringify(sampleData));
                 alert('Datos guardados exitosamente.');
             }
 
+            localStorage.setItem('storedSamples', JSON.stringify(storedSamples));
             clearForm();
         }
 
@@ -256,21 +249,14 @@
 
         function calculatePercentage() {
             const total = parseFloat(document.getElementById('total').value) || 0;
-            if (total <= 0) {
-                alert('El total debe ser mayor que cero.');
-                return;
+            if (total > 0) {
+                ['rotos', 'trizados', 'cholgas', 'malton', 'picorocos', 'otros'].forEach(category => {
+                    const value = parseFloat(document.getElementById(category).value) || 0;
+                    document.getElementById(`resultado${capitalizeFirstLetter(category)}`).textContent = ((value / total) * 100).toFixed(2);
+                });
+                const choritos = total - ['rotos', 'trizados', 'cholgas', 'malton', 'picorocos', 'otros'].reduce((sum, category) => sum + (parseFloat(document.getElementById(category).value) || 0), 0);
+                document.getElementById('resultadoChoritos').textContent = ((choritos / total) * 100).toFixed(2);
             }
-
-            const categories = ['rotos', 'trizados', 'cholgas', 'malton', 'picorocos', 'otros'];
-            let sum = 0;
-
-            categories.forEach(category => {
-                const value = parseFloat(document.getElementById(category).value) || 0;
-                sum += value;
-                document.getElementById(`resultado${capitalizeFirstLetter(category)}`).textContent = ((value / total) * 100).toFixed(2);
-            });
-
-            document.getElementById('resultadoChoritos').textContent = ((total - sum) / total * 100).toFixed(2);
         }
 
         function capitalizeFirstLetter(string) {
@@ -279,45 +265,39 @@
 
         async function updateDateTimeAndTemperature() {
             const now = new Date();
-            const fecha = now.toLocaleDateString();
-            const hora = now.toLocaleTimeString();
+            document.getElementById('fecha').textContent = now.toLocaleDateString();
+            document.getElementById('hora').textContent = now.toLocaleTimeString();
 
-            document.getElementById('fecha').textContent = fecha;
-            document.getElementById('hora').textContent = hora;
+            document.getElementById('hiddenFecha').value = now.toLocaleDateString();
+            document.getElementById('hiddenHora').value = now.toLocaleTimeString();
 
-            const apiKey = 'e8d54296932b2069dfee21442c327dcb';
             const ciudad = 'Castro,CL';
+            const apiKey = 'e8d54296932b2069dfee21442c327dcb';
             const url = `https://api.openweathermap.org/data/2.5/weather?q=${ciudad}&units=metric&appid=${apiKey}`;
 
             try {
                 const response = await fetch(url);
                 const data = await response.json();
                 const temperatura = data.main.temp;
-
                 document.getElementById('temperatura').textContent = temperatura;
-                document.getElementById('hiddenFecha').value = fecha;
-                document.getElementById('hiddenHora').value = hora;
                 document.getElementById('hiddenTemperatura').value = temperatura;
-
             } catch (error) {
                 console.error('Error al obtener la temperatura:', error);
                 document.getElementById('temperatura').textContent = 'N/A';
+                document.getElementById('hiddenTemperatura').value = 'N/A';
             }
         }
 
         function updateUnits() {
-            const tipoMuestreo = document.getElementById('tipoMuestreo').value;
-            const unidad = tipoMuestreo === 'peso' ? 'grs' : 'unds';
-            document.getElementById('totalLabel').textContent = `Muestra Total (${unidad}):`;
-            document.getElementById('rotosLabel').textContent = `Rotos (${unidad}):`;
-            document.getElementById('trizadosLabel').textContent = `Trizados (${unidad}):`;
-            document.getElementById('cholgasLabel').textContent = `Cholgas (${unidad}):`;
-            document.getElementById('maltonLabel').textContent = `Malton (${unidad}):`;
-            document.getElementById('picorocosLabel').textContent = `Picorocos (${unidad}):`;
-            document.getElementById('otrosLabel').textContent = `Otros (${unidad}):`;
+            const unidad = document.getElementById('tipoMuestreo').value === 'peso' ? 'grs' : 'unds';
+            ['total', 'rotos', 'trizados', 'cholgas', 'malton', 'picorocos', 'otros'].forEach(id => {
+                document.getElementById(`${id}Label`).textContent = `${capitalizeFirstLetter(id)} (${unidad}):`;
+            });
         }
     </script>
 </body>
 
 </html>
+
+
 
