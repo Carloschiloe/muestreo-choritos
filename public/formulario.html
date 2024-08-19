@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Muestreo de Choritos</title>
+    <title>Registro de Muestreo de Choritos</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
@@ -191,36 +191,35 @@
             const file = fileInput.files[0];
 
             if (file) {
-                // Intentaremos obtener la imagen capturada
                 const reader = new FileReader();
                 reader.onloadend = function() {
-                    saveSample(formData, reader.result); // Guardar muestra con la imagen
+                    saveSample(formData, reader.result); 
                 };
-                reader.readAsDataURL(file); // Convertir imagen a base64
+                reader.readAsDataURL(file); 
             } else {
-                saveSample(formData, null); // Guardar sin imagen
+                saveSample(formData, null); 
             }
         });
 
         function saveSample(formData, fotoData) {
             const sampleData = Object.fromEntries(formData.entries());
-            sampleData.foto = fotoData || ''; // Asignar imagen en base64 si está disponible
+            sampleData.foto = fotoData || ''; 
             sampleData.fecha = document.getElementById('hiddenFecha').value;
             sampleData.hora = document.getElementById('hiddenHora').value;
             sampleData.temperatura = document.getElementById('hiddenTemperatura').value;
 
             let storedSamples = JSON.parse(localStorage.getItem('storedSamples')) || [];
             if (editIndex !== null) {
-                storedSamples[editIndex] = sampleData; // Editar muestra existente
+                storedSamples[editIndex] = sampleData; 
                 editIndex = null;
             } else {
-                storedSamples.push(sampleData); // Añadir nueva muestra
+                storedSamples.push(sampleData); 
             }
 
-            localStorage.setItem('storedSamples', JSON.stringify(storedSamples)); // Almacenar muestras
-            localStorage.setItem('lastSample', JSON.stringify(sampleData)); // Almacenar la última muestra
+            localStorage.setItem('storedSamples', JSON.stringify(storedSamples)); 
+            localStorage.setItem('lastSample', JSON.stringify(sampleData)); 
             alert('Datos guardados exitosamente.');
-            clearForm(); // Limpiar formulario
+            clearForm(); 
         }
 
         window.onload = async function() {
@@ -230,7 +229,6 @@
             document.getElementById('hiddenFecha').value = now.toLocaleDateString();
             document.getElementById('hiddenHora').value = now.toLocaleTimeString();
 
-            // Obtener temperatura
             const apiKey = 'e8d54296932b2069dfee21442c327dcb';
             const ciudad = 'Castro,CL';
             const url = `https://api.openweathermap.org/data/2.5/weather?q=${ciudad}&units=metric&appid=${apiKey}`;
@@ -245,7 +243,6 @@
                 document.getElementById('hiddenTemperatura').value = 'N/A';
             }
 
-            // Verificar si hay muestra en edición
             const editIndexFromStorage = localStorage.getItem('editIndex');
             if (editIndexFromStorage !== null) {
                 const storedSamples = JSON.parse(localStorage.getItem('storedSamples')) || [];
