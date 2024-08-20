@@ -71,6 +71,7 @@
         <img src="Imagenes/camanchaca.png" alt="Logo de la Empresa" class="logo">
         <h1 class="text-center">Registro de Muestreo de Choritos</h1>
 
+        <!-- Mostrar fecha, hora y temperatura en una sola línea -->
         <div class="date-time-temp">
             Fecha: <span id="fecha"></span> |
             Hora: <span id="hora"></span> |
@@ -194,22 +195,11 @@
             const file = fileInput.files[0];
 
             if (file) {
-                // Verificar si el navegador es Chrome en móviles
-                const isChromeMobile = /Chrome/.test(navigator.userAgent) && /Android/.test(navigator.userAgent);
-
-                if (isChromeMobile) {
-                    resizeImage(file, function(resizedImageDataUrl) {
-                        saveSample(formData, resizedImageDataUrl);
-                    });
-                } else {
-                    const reader = new FileReader();
-                    reader.onloadend = function() {
-                        saveSample(formData, reader.result); 
-                    };
-                    reader.readAsDataURL(file);
-                }
+                resizeImage(file, function(resizedImageDataUrl) {
+                    saveSample(formData, resizedImageDataUrl); // Guardar muestra con la imagen redimensionada
+                });
             } else {
-                saveSample(formData, null);
+                saveSample(formData, null); // Guardar sin imagen
             }
         });
 
@@ -233,6 +223,7 @@
                     canvas.height = height;
                     ctx.drawImage(img, 0, 0, width, height);
 
+                    // Reducir el tamaño de la imagen hasta que esté por debajo de 1MB
                     let resizedImageDataUrl = canvas.toDataURL('image/jpeg', quality);
                     while (resizedImageDataUrl.length > maxSize && quality > 0.1) {
                         quality -= 0.1; // Disminuir calidad gradualmente
@@ -241,9 +232,6 @@
 
                     callback(resizedImageDataUrl);
                 };
-            };
-            reader.onerror = function() {
-                alert('Error al cargar la imagen. Intente nuevamente.');
             };
             reader.readAsDataURL(file);
         }
@@ -358,8 +346,4 @@
 </body>
 
 </html>
-
-
-
-
 
