@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -212,9 +213,17 @@
 
         function submitForm() {
             closeDialog();  // Cerrar el diálogo
-            const form = document.getElementById('muestreoForm');
-            const submitEvent = new Event('submit', { bubbles: true });
-            form.dispatchEvent(submitEvent);  // Disparar el evento submit del formulario
+            const formData = new FormData(document.getElementById('muestreoForm'));
+            const fileInput = document.getElementById('foto');
+            const file = fileInput.files[0];
+
+            if (file) {
+                resizeImage(file, function(resizedImageDataUrl) {
+                    saveSample(formData, resizedImageDataUrl);  // Guardar muestra con la imagen redimensionada
+                });
+            } else {
+                saveSample(formData, null);  // Guardar sin imagen
+            }
         }
 
         function clearForm() {
@@ -234,21 +243,6 @@
             document.getElementById('responsable').value = lastSample.responsable || '';
         }
 
-        document.getElementById('muestreoForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const formData = new FormData(this);
-            const fileInput = document.getElementById('foto');
-            const file = fileInput.files[0];
-
-            if (file) {
-                resizeImage(file, function(resizedImageDataUrl) {
-                    saveSample(formData, resizedImageDataUrl); // Guardar muestra con la imagen redimensionada
-                });
-            } else {
-                saveSample(formData, null); // Guardar sin imagen
-            }
-        });
-
         function resizeImage(file, callback) {
             const reader = new FileReader();
             reader.onload = function(event) {
@@ -261,21 +255,24 @@
                     let width = img.width;
                     let height = img.height;
 
-                    // Redimensionar hasta que el tamaño sea menor a 1MB
-                    const maxSize = 1024 * 1024; // 1MB en bytes
-                    let quality = 0.9; // Comenzar con una calidad alta
+                    const maxSize = 1024; // Ajustamos la longitud máxima
+                    if (width > height) {
+                        if (width > maxSize) {
+                            height *= maxSize / width;
+                            width = maxSize;
+                        }
+                    } else {
+                        if (height > maxSize) {
+                            width *= maxSize / height;
+                            height = maxSize;
+                        }
+                    }
 
                     canvas.width = width;
                     canvas.height = height;
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    // Reducir el tamaño de la imagen hasta que esté por debajo de 1MB
-                    let resizedImageDataUrl = canvas.toDataURL('image/jpeg', quality);
-                    while (resizedImageDataUrl.length > maxSize && quality > 0.1) {
-                        quality -= 0.1; // Disminuir calidad gradualmente
-                        resizedImageDataUrl = canvas.toDataURL('image/jpeg', quality);
-                    }
-
+                    const resizedImageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
                     callback(resizedImageDataUrl);
                 };
             };
@@ -284,23 +281,23 @@
 
         function saveSample(formData, fotoData) {
             const sampleData = Object.fromEntries(formData.entries());
-            sampleData.foto = fotoData || ''; 
+            sampleData.foto = fotoData || '';
             sampleData.fecha = document.getElementById('hiddenFecha').value;
             sampleData.hora = document.getElementById('hiddenHora').value;
             sampleData.temperatura = document.getElementById('hiddenTemperatura').value;
 
             let storedSamples = JSON.parse(localStorage.getItem('storedSamples')) || [];
             if (editIndex !== null) {
-                storedSamples[editIndex] = sampleData; 
+                storedSamples[editIndex] = sampleData;
                 editIndex = null;
             } else {
-                storedSamples.push(sampleData); 
+                storedSamples.push(sampleData);
             }
 
-            localStorage.setItem('storedSamples', JSON.stringify(storedSamples)); 
-            localStorage.setItem('lastSample', JSON.stringify(sampleData)); 
+            localStorage.setItem('storedSamples', JSON.stringify(storedSamples));
+            localStorage.setItem('lastSample', JSON.stringify(sampleData));
             alert('Datos guardados exitosamente.');
-            clearForm(); 
+            clearForm();
         }
 
         window.onload = async function() {
@@ -392,4 +389,3 @@
 </body>
 
 </html>
-
