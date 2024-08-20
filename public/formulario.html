@@ -71,7 +71,6 @@
         <img src="Imagenes/camanchaca.png" alt="Logo de la Empresa" class="logo">
         <h1 class="text-center">Registro de Muestreo de Choritos</h1>
 
-        <!-- Mostrar fecha, hora y temperatura en una sola línea -->
         <div class="date-time-temp">
             Fecha: <span id="fecha"></span> |
             Hora: <span id="hora"></span> |
@@ -223,7 +222,6 @@
                     canvas.height = height;
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    // Reducir el tamaño de la imagen hasta que esté por debajo de 1MB
                     let resizedImageDataUrl = canvas.toDataURL('image/jpeg', quality);
                     while (resizedImageDataUrl.length > maxSize && quality > 0.1) {
                         quality -= 0.1; // Disminuir calidad gradualmente
@@ -232,6 +230,9 @@
 
                     callback(resizedImageDataUrl);
                 };
+            };
+            reader.onerror = function() {
+                alert('Error al cargar la imagen. Intente nuevamente.');
             };
             reader.readAsDataURL(file);
         }
