@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -218,9 +219,7 @@
 
             if (file) {
                 resizeImage(file, function(resizedImageDataUrl) {
-                    uploadImageToGoogleDrive(resizedImageDataUrl, function(response) {
-                        saveSample(formData, response.id);  // Guardar muestra con el ID de la imagen subida
-                    });
+                    saveSample(formData, resizedImageDataUrl);  // Guardar muestra con la imagen redimensionada
                 });
             } else {
                 saveSample(formData, null);  // Guardar sin imagen
@@ -256,8 +255,7 @@
                     let width = img.width;
                     let height = img.height;
 
-                    // Redimensionar para reducir aún más el tamaño de la imagen
-                    const maxSize = 800; // Ajustamos la longitud máxima a 800px
+                    const maxSize = 1024; // Ajustamos la longitud máxima
                     if (width > height) {
                         if (width > maxSize) {
                             height *= maxSize / width;
@@ -274,107 +272,33 @@
                     canvas.height = height;
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    // Reducir la calidad para obtener un tamaño de archivo más pequeño
-                    const resizedImageDataUrl = canvas.toDataURL('image/jpeg', 0.7); // Reducimos la calidad al 70%
+                    const resizedImageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
                     callback(resizedImageDataUrl);
                 };
             };
             reader.readAsDataURL(file);
         }
 
-        function uploadImageToGoogleDrive(imageDataUrl, callback) {
-            const apiKey = 'AIzaSyCIHYsROGjKafNM3dVd5zZhBo5RJbwACoY';
-            const accessToken = 'YOUR_ACCESS_TOKEN'; // Generado previamente
-            const boundary = 'foo_bar_baz';
-            const metadata = {
-                'name': 'muestreo_foto.jpg',
-                'mimeType': 'image/jpeg'
-            };
-            const multipartRequestBody =
-                `--${boundary}\r\n` +
-                'Content-Type: application/json\r\n\r\n' +
-                JSON.stringify(metadata) + '\r\n' +
-                `--${boundary}\r\n` +
-                'Content-Type: image/jpeg\r\n\r\n' +
-                imageDataUrl + '\r\n' +
-                `--${boundary}--`;
-
-            fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-                method: 'POST',
-                headers: new Headers({
-                    'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': `multipart/related; boundary=${boundary}`
-                }),
-                body: multipartRequestBody
-            })
-            .then(response => response.json())
-            .then(data => callback(data))
-            .catch(error => console.error('Error subiendo imagen:', error));
-        }
-
         function saveSample(formData, fotoData) {
-    const sampleData = Object.fromEntries(formData.entries());
-    
-    // Si hay una foto, sube la imagen a Google Drive y genera el enlace para compartir
-    if (fotoData) {
-        uploadFileToDrive(fotoData, function(googleDriveLink) {
-            sampleData.foto = googleDriveLink;  // Guarda el enlace de Google Drive en lugar de la imagen en base64
-            storeSampleData(sampleData);  // Guarda el resto de los datos en el almacenamiento local
-        });
-    } else {
-        sampleData.foto = '';  // Si no hay foto, guarda un campo vacío
-        storeSampleData(sampleData);  // Guarda el resto de los datos en el almacenamiento local
-    }
-}
+            const sampleData = Object.fromEntries(formData.entries());
+            sampleData.foto = fotoData || '';
+            sampleData.fecha = document.getElementById('hiddenFecha').value;
+            sampleData.hora = document.getElementById('hiddenHora').value;
+            sampleData.temperatura = document.getElementById('hiddenTemperatura').value;
 
-function uploadFileToDrive(imageData, callback) {
-    // Aquí agregamos el código para subir la imagen a Google Drive usando la API de Google
-    // y obtener el enlace de descarga
-    const accessToken = gapi.auth.getToken().access_token;  // Asegúrate de que estés autenticado
+            let storedSamples = JSON.parse(localStorage.getItem('storedSamples')) || [];
+            if (editIndex !== null) {
+                storedSamples[editIndex] = sampleData;
+                editIndex = null;
+            } else {
+                storedSamples.push(sampleData);
+            }
 
-    fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=media', {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'image/jpeg'
-        },
-        body: imageData
-    }).then(response => response.json()).then(data => {
-        const fileId = data.id;
-        // Ahora hacemos que el archivo sea visible públicamente
-        fetch(`https://www.googleapis.com/drive/v3/files/${fileId}/permissions`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                role: 'reader',
-                type: 'anyone'
-            })
-        }).then(() => {
-            // Generamos el enlace público
-            const googleDriveLink = `https://drive.google.com/uc?id=${fileId}`;
-            callback(googleDriveLink);
-        });
-    });
-}
-
-function storeSampleData(sampleData) {
-    let storedSamples = JSON.parse(localStorage.getItem('storedSamples')) || [];
-    if (editIndex !== null) {
-        storedSamples[editIndex] = sampleData;
-        editIndex = null;
-    } else {
-        storedSamples.push(sampleData);
-    }
-
-    localStorage.setItem('storedSamples', JSON.stringify(storedSamples));
-    localStorage.setItem('lastSample', JSON.stringify(sampleData));
-    alert('Datos guardados exitosamente.');
-    clearForm();
-}
-
+            localStorage.setItem('storedSamples', JSON.stringify(storedSamples));
+            localStorage.setItem('lastSample', JSON.stringify(sampleData));
+            alert('Datos guardados exitosamente.');
+            clearForm();
+        }
 
         window.onload = async function() {
             const now = new Date();
@@ -465,4 +389,3 @@ function storeSampleData(sampleData) {
 </body>
 
 </html>
-
