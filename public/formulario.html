@@ -195,15 +195,46 @@
             const file = fileInput.files[0];
 
             if (file) {
-                const reader = new FileReader();
-                reader.onloadend = function() {
-                    saveSample(formData, reader.result); 
-                };
-                reader.readAsDataURL(file); 
+                resizeImage(file, function(resizedImageDataUrl) {
+                    saveSample(formData, resizedImageDataUrl); // Guardar muestra con la imagen redimensionada
+                });
             } else {
-                saveSample(formData, null); 
+                saveSample(formData, null); // Guardar sin imagen
             }
         });
+
+        function resizeImage(file, callback) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.src = event.target.result;
+
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    let width = img.width;
+                    let height = img.height;
+
+                    // Redimensionar hasta que el tamaño sea menor a 1MB
+                    const maxSize = 1024 * 1024; // 1MB en bytes
+                    let quality = 0.9; // Comenzar con una calidad alta
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Reducir el tamaño de la imagen hasta que esté por debajo de 1MB
+                    let resizedImageDataUrl = canvas.toDataURL('image/jpeg', quality);
+                    while (resizedImageDataUrl.length > maxSize && quality > 0.1) {
+                        quality -= 0.1; // Disminuir calidad gradualmente
+                        resizedImageDataUrl = canvas.toDataURL('image/jpeg', quality);
+                    }
+
+                    callback(resizedImageDataUrl);
+                };
+            };
+            reader.readAsDataURL(file);
+        }
 
         function saveSample(formData, fotoData) {
             const sampleData = Object.fromEntries(formData.entries());
