@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Muestreo de Choritos</title>
+    <title>Registro de Muestreo de Choritos</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
@@ -71,6 +71,7 @@
         <img src="Imagenes/camanchaca.png" alt="Logo de la Empresa" class="logo">
         <h1 class="text-center">Registro de Muestreo de Choritos</h1>
 
+        <!-- Mostrar fecha, hora y temperatura en una sola línea -->
         <div class="date-time-temp">
             Fecha: <span id="fecha"></span> |
             Hora: <span id="hora"></span> |
@@ -100,31 +101,31 @@
             </div>
             <div class="form-group">
                 <label id="totalLabel" for="total">Muestra Total (unds):</label>
-                <input type="number" class="form-control small-input" id="total" name="total" required oninput="validateInput()">
+                <input type="number" class="form-control small-input" id="total" name="total" required>
             </div>
             <div class="form-group">
                 <label id="rotosLabel" for="rotos">Rotos (unds):</label>
-                <input type="number" class="form-control small-input" id="rotos" name="rotos" required oninput="validateInput()">
+                <input type="number" class="form-control small-input" id="rotos" name="rotos" required oninput="validateItem('rotos')">
             </div>
             <div class="form-group">
                 <label id="trizadosLabel" for="trizados">Trizados (unds):</label>
-                <input type="number" class="form-control small-input" id="trizados" name="trizados" required oninput="validateInput()">
+                <input type="number" class="form-control small-input" id="trizados" name="trizados" required oninput="validateItem('trizados')">
             </div>
             <div class="form-group">
                 <label id="cholgasLabel" for="cholgas">Cholgas (unds):</label>
-                <input type="number" class="form-control small-input" id="cholgas" name="cholgas" required oninput="validateInput()">
+                <input type="number" class="form-control small-input" id="cholgas" name="cholgas" required oninput="validateItem('cholgas')">
             </div>
             <div class="form-group">
                 <label id="maltonLabel" for="malton">Malton (unds):</label>
-                <input type="number" class="form-control small-input" id="malton" name="malton" required oninput="validateInput()">
+                <input type="number" class="form-control small-input" id="malton" name="malton" required oninput="validateItem('malton')">
             </div>
             <div class="form-group">
                 <label id="picorocosLabel" for="picorocos">Picorocos (unds):</label>
-                <input type="number" class="form-control small-input" id="picorocos" name="picorocos" required oninput="validateInput()">
+                <input type="number" class="form-control small-input" id="picorocos" name="picorocos" required oninput="validateItem('picorocos')">
             </div>
             <div class="form-group">
                 <label id="otrosLabel" for="otros">Otros (unds):</label>
-                <input type="number" class="form-control small-input" id="otros" name="otros" required oninput="validateInput()">
+                <input type="number" class="form-control small-input" id="otros" name="otros" required oninput="validateItem('otros')">
             </div>
             <div class="form-group">
                 <label for="observaciones">Observaciones:</label>
@@ -141,7 +142,7 @@
             <input type="hidden" id="hiddenFecha" name="fecha">
             <input type="hidden" id="hiddenHora" name="hora">
             <input type="hidden" id="hiddenTemperatura" name="temperatura">
-            <button type="submit" class="btn btn-success" id="submitBtn" disabled>Registrar</button>
+            <button type="submit" class="btn btn-success" onclick="confirmSubmission(event)">Registrar</button>
         </form>
 
         <div class="mt-4">
@@ -166,7 +167,6 @@
         function clearForm() {
             document.getElementById('muestreoForm').reset();
             localStorage.removeItem('editIndex');
-            document.getElementById('submitBtn').disabled = true; // Desactivar botón después de limpiar
         }
 
         function copyLastSample() {
@@ -181,33 +181,10 @@
             document.getElementById('responsable').value = lastSample.responsable || '';
         }
 
-        function validateInput() {
-            const total = parseFloat(document.getElementById('total').value) || 0;
-            const rotos = parseFloat(document.getElementById('rotos').value) || 0;
-            const trizados = parseFloat(document.getElementById('trizados').value) || 0;
-            const cholgas = parseFloat(document.getElementById('cholgas').value) || 0;
-            const malton = parseFloat(document.getElementById('malton').value) || 0;
-            const picorocos = parseFloat(document.getElementById('picorocos').value) || 0;
-            const otros = parseFloat(document.getElementById('otros').value) || 0;
-
-            const sumCategories = rotos + trizados + cholgas + malton + picorocos + otros;
-            const choritos = total - sumCategories;
-            const sumPercentages = ((rotos + trizados + cholgas + malton + picorocos + otros) / total) * 100;
-
-            document.getElementById('resultadoRotos').textContent = ((rotos / total) * 100).toFixed(2);
-            document.getElementById('resultadoTrizados').textContent = ((trizados / total) * 100).toFixed(2);
-            document.getElementById('resultadoCholgas').textContent = ((cholgas / total) * 100).toFixed(2);
-            document.getElementById('resultadoMalton').textContent = ((malton / total) * 100).toFixed(2);
-            document.getElementById('resultadoPicorocos').textContent = ((picorocos / total) * 100).toFixed(2);
-            document.getElementById('resultadoOtros').textContent = ((otros / total) * 100).toFixed(2);
-            document.getElementById('resultadoChoritos').textContent = ((choritos / total) * 100).toFixed(2);
-
-            // Validación de que la suma de categorías no excede 100%
-            if (sumCategories > total) {
-                alert('La suma de las categorías no puede exceder el total.');
-                document.getElementById('submitBtn').disabled = true;
-            } else {
-                document.getElementById('submitBtn').disabled = false;
+        function confirmSubmission(event) {
+            const confirmacion = confirm("¿Estás seguro de que deseas registrar estos datos?");
+            if (!confirmacion) {
+                event.preventDefault(); // Cancela el envío del formulario
             }
         }
 
@@ -220,33 +197,33 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onloadend = function() {
-                    saveSample(formData, reader.result); // Guardar muestra con la imagen
+                    saveSample(formData, reader.result); 
                 };
-                reader.readAsDataURL(file);
+                reader.readAsDataURL(file); 
             } else {
-                saveSample(formData, null); // Guardar sin imagen
+                saveSample(formData, null); 
             }
         });
 
         function saveSample(formData, fotoData) {
             const sampleData = Object.fromEntries(formData.entries());
-            sampleData.foto = fotoData || ''; // Asignar imagen en base64 si está disponible
+            sampleData.foto = fotoData || ''; 
             sampleData.fecha = document.getElementById('hiddenFecha').value;
             sampleData.hora = document.getElementById('hiddenHora').value;
             sampleData.temperatura = document.getElementById('hiddenTemperatura').value;
 
             let storedSamples = JSON.parse(localStorage.getItem('storedSamples')) || [];
             if (editIndex !== null) {
-                storedSamples[editIndex] = sampleData; // Editar muestra existente
+                storedSamples[editIndex] = sampleData; 
                 editIndex = null;
             } else {
-                storedSamples.push(sampleData); // Añadir nueva muestra
+                storedSamples.push(sampleData); 
             }
 
-            localStorage.setItem('storedSamples', JSON.stringify(storedSamples)); // Almacenar muestras
-            localStorage.setItem('lastSample', JSON.stringify(sampleData)); // Almacenar la última muestra
+            localStorage.setItem('storedSamples', JSON.stringify(storedSamples)); 
+            localStorage.setItem('lastSample', JSON.stringify(sampleData)); 
             alert('Datos guardados exitosamente.');
-            clearForm(); // Limpiar formulario
+            clearForm(); 
         }
 
         window.onload = async function() {
@@ -292,6 +269,42 @@
             }
         };
 
+        function validateItem(field) {
+            const total = parseFloat(document.getElementById('total').value) || 0;
+            const rotos = parseFloat(document.getElementById('rotos').value) || 0;
+            const trizados = parseFloat(document.getElementById('trizados').value) || 0;
+            const cholgas = parseFloat(document.getElementById('cholgas').value) || 0;
+            const malton = parseFloat(document.getElementById('malton').value) || 0;
+            const picorocos = parseFloat(document.getElementById('picorocos').value) || 0;
+            const otros = parseFloat(document.getElementById('otros').value) || 0;
+
+            const sumaItems = rotos + trizados + cholgas + malton + picorocos + otros;
+
+            if (sumaItems > total) {
+                alert("La suma de los ítems no puede superar el total.");
+                document.getElementById(field).value = '';  // Solo se vacía el campo que se está llenando
+                return;
+            }
+
+            calculatePercentage();
+        }
+
+        function calculatePercentage() {
+            const total = parseFloat(document.getElementById('total').value) || 0;
+            if (total > 0) {
+                ['rotos', 'trizados', 'cholgas', 'malton', 'picorocos', 'otros'].forEach(category => {
+                    const value = parseFloat(document.getElementById(category).value) || 0;
+                    document.getElementById(`resultado${capitalizeFirstLetter(category)}`).textContent = ((value / total) * 100).toFixed(2);
+                });
+                const choritos = total - ['rotos', 'trizados', 'cholgas', 'malton', 'picorocos', 'otros'].reduce((sum, category) => sum + (parseFloat(document.getElementById(category).value) || 0), 0);
+                document.getElementById('resultadoChoritos').textContent = ((choritos / total) * 100).toFixed(2);
+            }
+        }
+
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
         function updateUnits() {
             const unidad = document.getElementById('tipoMuestreo').value === 'peso' ? 'grs' : 'unds';
             ['total', 'rotos', 'trizados', 'cholgas', 'malton', 'picorocos', 'otros'].forEach(id => {
@@ -302,7 +315,6 @@
 </body>
 
 </html>
-
 
 
 
