@@ -63,6 +63,34 @@
         #observaciones {
             width: 50%;
         }
+
+        /* Estilos para el cuadro de diálogo */
+        #dialogOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        #dialogBox {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            z-index: 1001;
+        }
+
+        #dialogBox h3 {
+            margin-top: 0;
+        }
     </style>
 </head>
 
@@ -71,7 +99,6 @@
         <img src="Imagenes/camanchaca.png" alt="Logo de la Empresa" class="logo">
         <h1 class="text-center">Registro de Muestreo de Choritos</h1>
 
-        <!-- Mostrar fecha, hora y temperatura en una sola línea -->
         <div class="date-time-temp">
             Fecha: <span id="fecha"></span> |
             Hora: <span id="hora"></span> |
@@ -142,12 +169,21 @@
             <input type="hidden" id="hiddenFecha" name="fecha">
             <input type="hidden" id="hiddenHora" name="hora">
             <input type="hidden" id="hiddenTemperatura" name="temperatura">
-            <button type="submit" class="btn btn-success" onclick="confirmSubmission(event)">Registrar</button>
+            <button type="button" class="btn btn-success" onclick="showDialog()">Registrar</button>
         </form>
 
         <div class="mt-4">
             <a href="resumen.html" class="btn btn-info">Ver Resumen de Resultados</a>
         </div>
+    </div>
+
+    <!-- Cuadro de diálogo personalizado -->
+    <div id="dialogOverlay"></div>
+    <div id="dialogBox">
+        <h3>Confirmar Registro</h3>
+        <p>¿Estás seguro de que deseas registrar estos datos?</p>
+        <button class="btn btn-success" onclick="submitForm()">Confirmar</button>
+        <button class="btn btn-danger" onclick="closeDialog()">Cancelar</button>
     </div>
 
     <div class="floating-window">
@@ -164,6 +200,23 @@
     <script>
         let editIndex = null;
 
+        function showDialog() {
+            document.getElementById('dialogOverlay').style.display = 'block';
+            document.getElementById('dialogBox').style.display = 'block';
+        }
+
+        function closeDialog() {
+            document.getElementById('dialogOverlay').style.display = 'none';
+            document.getElementById('dialogBox').style.display = 'none';
+        }
+
+        function submitForm() {
+            closeDialog();  // Cerrar el diálogo
+            const form = document.getElementById('muestreoForm');
+            const submitEvent = new Event('submit', { bubbles: true });
+            form.dispatchEvent(submitEvent);  // Disparar el evento submit del formulario
+        }
+
         function clearForm() {
             document.getElementById('muestreoForm').reset();
             localStorage.removeItem('editIndex');
@@ -179,13 +232,6 @@
             document.getElementById('linea').value = lastSample.linea || '';
             document.getElementById('plataforma').value = lastSample.plataforma || '';
             document.getElementById('responsable').value = lastSample.responsable || '';
-        }
-
-        function confirmSubmission(event) {
-            const confirmacion = confirm("¿Estás seguro de que deseas registrar estos datos?");
-            if (!confirmacion) {
-                event.preventDefault(); // Cancela el envío del formulario
-            }
         }
 
         document.getElementById('muestreoForm').addEventListener('submit', function(event) {
